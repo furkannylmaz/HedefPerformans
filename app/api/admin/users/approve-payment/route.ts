@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client'
 import { Queue } from 'bullmq'
 import { assignQueueName } from '@/lib/queue/names'
 import { connection } from '@/lib/queue/connection'
-import { sendPaymentApprovedEmail } from '@/lib/email'
 
 const prisma = new PrismaClient()
 
@@ -132,15 +131,6 @@ export async function POST(request: NextRequest) {
         console.error('❌ Error stack:', error.stack)
         // Job hatası olsa bile ödeme onayı devam etsin
       }
-    }
-
-    // Email gönder
-    try {
-      await sendPaymentApprovedEmail(user.email, user.firstName)
-      console.log(`✅ [APPROVE-PAYMENT] Email sent to: ${user.email}`)
-    } catch (error) {
-      console.error('❌ [APPROVE-PAYMENT] Email error:', error)
-      // Email hatası olsa bile devam et
     }
 
     // Prisma'yı kapat - transaction tamamlandı

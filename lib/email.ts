@@ -68,12 +68,12 @@ export async function sendSquadAssignmentEmail(email: string, firstName: string,
     await resend.emails.send({
       from: 'Hedef Performans <onboarding@resend.dev>',
       to: email,
-      subject: 'Kadroya Atandınız! ⚽',
+      subject: 'Ödemeniz Onaylandı ve Kadroya Atandınız! ⚽',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #22C55E;">🎉 Kadroya Atandınız!</h1>
+          <h1 style="color: #22C55E;">🎉 Ödemeniz Onaylandı ve Kadroya Atandınız!</h1>
           <p>Merhaba ${firstName},</p>
-          <p>Ödemeleriniz onaylandı ve kadroya atanmış durumdasınız! İşte kadro bilgileriniz:</p>
+          <p>✅ Ödemeleriniz onaylandı ve sizin için uygun kadroya atandınız! İşte kadro bilgileriniz:</p>
           <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p><strong>Kadro:</strong> ${squadName}</p>
             <p><strong>Pozisyon:</strong> ${positionKey}</p>
