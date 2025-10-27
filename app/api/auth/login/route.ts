@@ -45,11 +45,12 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
     
-    // Kullanıcı durumu kontrolü
-    if (user.status !== "PAID" && user.status !== "ACTIVE") {
+    // Kullanıcı durumu kontrolü - Sadece BLOCKED ve DELETED engellensin
+    // PENDING, PAID, ACTIVE hepsi giriş yapabilsin
+    if (user.status === "BLOCKED" || user.status === "DELETED") {
       return NextResponse.json({
         success: false,
-        message: "Hesabınız aktif değil. Ödeme işleminizi tamamlayın."
+        message: "Hesabınız aktif değil."
       }, { status: 403 })
     }
     

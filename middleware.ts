@@ -6,11 +6,9 @@ export function middleware(request: NextRequest) {
   
   console.log(`🔍 [MIDDLEWARE] Path: ${pathname}`)
   
-  // SADECE admin sayfa route'ları için kontrol
-  // API route'ları, auth sayfası ve upload sayfaları hariç
+  // Admin sayfa route'ları için kontrol (auth sayfası ve upload sayfaları hariç)
   if (
     pathname.startsWith('/admin') && 
-    !pathname.startsWith('/api/admin') && 
     pathname !== '/admin/auth' &&
     !pathname.includes('/upload')
   ) {
@@ -26,10 +24,24 @@ export function middleware(request: NextRequest) {
     }
   }
   
+  // Admin API route'ları için kontrol
+  if (pathname.startsWith('/api/admin')) {
+    // Admin cookie kontrolü
+    const isAdmin = request.cookies.get('admin_authenticated')
+    
+    console.log(`🔍 [MIDDLEWARE] API Admin cookie: ${isAdmin?.value}`)
+    
+    if (!isAdmin || isAdmin.value !== 'true') {
+      console.log(`❌ [MIDDLEWARE] Unauthorized API access`)
+      // 401 Unauthorized döndür
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+  }
+  
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/admin/:path*']
+  matcher: ['/admin/:path*', '/api/admin/:path*']
 }
 

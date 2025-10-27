@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import { Queue } from 'bullmq'
 import { assignQueueName } from '@/lib/queue/names'
 import { connection } from '@/lib/queue/connection'
+import { sendPaymentApprovedEmail } from '@/lib/email'
 
 const prisma = new PrismaClient()
 

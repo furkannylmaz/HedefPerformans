@@ -11,6 +11,7 @@ import {
   validatePositionForTemplate,
   getAgeGroupCode
 } from './positions'
+import { sendSquadAssignmentEmail } from '@/lib/email'
 
 const prisma = new PrismaClient()
 
@@ -328,6 +329,29 @@ export async function autoAssignUser(params: AssignUserParams) {
   })
 
   console.log(`[ASSIGN-DEBUG] DECISION: ${JSON.stringify({ squad: newSquad.name, slotNumber: assignedNumber, reason: 'NEW_SQUAD' })}`)
+  
+  // Kadro ataması email gönder
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, firstName: true }
+    })
+    
+    if (user) {
+      await sendSquadAssignmentEmail(
+        user.email,
+        user.firstName,
+        newSquad.name,
+        assignedPositionKey,
+        assignedNumber
+      )
+      console.log(`✅ Squad assignment email sent for user: ${userId}`)
+    }
+  } catch (error) {
+    console.error('❌ Squad assignment email gönderme hatası:', error)
+    // Email hatası atamayı etkilemez
+  }
+  
   return assignment
 }
 

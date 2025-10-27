@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
 import { PrismaClient } from '@prisma/client'
+import { sendWelcomeEmail } from '@/lib/email'
 import { 
   getTemplateForBirthYear, 
   getAgeGroupCode, 
@@ -160,6 +161,16 @@ export async function POST(request: NextRequest) {
 
     // Kadro ataması ödeme onayından sonra yapılacak (admin panelden)
     // await autoAssignUser() - Şimdilik kaldırıldı
+    
+    // Hoş geldin email'i gönder (async, hata olursa da devam et)
+    sendWelcomeEmail(
+      validatedData.email, 
+      validatedData.firstName, 
+      validatedData.password,
+      'http://localhost:3000/auth'
+    ).catch(error => {
+      console.error('❌ Welcome email gönderme hatası:', error)
+    })
     
     return NextResponse.json({
       success: true,
