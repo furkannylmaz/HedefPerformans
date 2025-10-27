@@ -134,6 +134,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Email gönder
+    try {
+      await sendPaymentApprovedEmail(user.email, user.firstName)
+      console.log(`✅ [APPROVE-PAYMENT] Email sent to: ${user.email}`)
+    } catch (error) {
+      console.error('❌ [APPROVE-PAYMENT] Email error:', error)
+      // Email hatası olsa bile devam et
+    }
+
     // Prisma'yı kapat - transaction tamamlandı
     await prisma.$disconnect()
     console.log(`✅ [APPROVE-PAYMENT] Response gönderiliyor...`)
