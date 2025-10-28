@@ -7,7 +7,7 @@ import { z } from "zod"
 import Link from "next/link"
 import Image from "next/image"
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay, Pagination, Navigation } from "swiper/modules"
+import { Autoplay, Pagination } from "swiper/modules"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -276,7 +276,7 @@ export default function AuthPage() {
           <div className="hidden lg:block">
             <Card className="rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6">
               <Swiper
-                modules={[Autoplay, Pagination, Navigation]}
+                modules={[Autoplay, Pagination]}
                 spaceBetween={30}
                 slidesPerView={1}
                 loop={true}
@@ -746,7 +746,7 @@ export default function AuthPage() {
           <div className="hidden lg:block">
             <Card className="rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6">
               <Swiper
-                modules={[Autoplay, Pagination, Navigation]}
+                modules={[Autoplay, Pagination]}
                 spaceBetween={30}
                 slidesPerView={1}
                 loop={true}
