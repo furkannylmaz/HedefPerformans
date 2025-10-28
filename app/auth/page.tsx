@@ -7,7 +7,7 @@ import { z } from "zod"
 import Link from "next/link"
 import Image from "next/image"
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay, Pagination } from "swiper/modules"
+import { Autoplay, Pagination, Navigation } from "swiper/modules"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -243,10 +243,10 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-turf-bg">
       {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+      <div className="bg-white/70 backdrop-blur-sm border-b border-turf-border sticky top-0 z-50">
+        <div className="container mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
@@ -271,23 +271,23 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8 items-center min-h-[80vh]">
+      <div className="min-h-screen grid lg:grid-cols-3 gap-4 md:gap-6 px-4 md:px-6 py-8">
           {/* Sol Slider */}
           <div className="hidden lg:block">
-            <div className="relative">
+            <Card className="rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6">
               <Swiper
-                modules={[Autoplay, Pagination]}
+                modules={[Autoplay, Pagination, Navigation]}
                 spaceBetween={30}
                 slidesPerView={1}
+                loop={true}
                 autoplay={{
-                  delay: 5000,
+                  delay: 3500,
                   disableOnInteraction: false,
                 }}
                 pagination={{
                   clickable: true,
                 }}
-                className="rounded-lg overflow-hidden shadow-lg h-[500px]"
+                className="h-[500px]"
               >
                 {leftSliders.length > 0 ? (
                   leftSliders.map((slider) => (
@@ -328,17 +328,12 @@ export default function AuthPage() {
                   </SwiperSlide>
                 )}
               </Swiper>
-            </div>
+            </Card>
           </div>
 
           {/* Orta - Form */}
-          <div className="w-full max-w-md mx-auto">
-            <div className="text-center mb-8 lg:hidden">
-              <h1 className="text-3xl font-bold text-primary mb-2">Hedef Performans</h1>
-              <p className="text-muted-foreground">Futbol kariyerinizi bir üst seviyeye taşıyın</p>
-            </div>
-
-            <Card>
+          <div className="w-full">
+            <Card className="rounded-xl border-turf-border bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="text-center">Hesabınıza Giriş Yapın</CardTitle>
                 <CardDescription className="text-center">
@@ -749,19 +744,20 @@ export default function AuthPage() {
 
           {/* Sağ Slider */}
           <div className="hidden lg:block">
-            <div className="relative">
+            <Card className="rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6">
               <Swiper
-                modules={[Autoplay, Pagination]}
+                modules={[Autoplay, Pagination, Navigation]}
                 spaceBetween={30}
                 slidesPerView={1}
+                loop={true}
                 autoplay={{
-                  delay: 5000,
+                  delay: 3500,
                   disableOnInteraction: false,
                 }}
                 pagination={{
                   clickable: true,
                 }}
-                className="rounded-lg overflow-hidden shadow-lg h-[500px]"
+                className="h-[500px]"
               >
                 {rightSliders.length > 0 ? (
                   rightSliders.map((slider) => (
@@ -802,7 +798,7 @@ export default function AuthPage() {
                   </SwiperSlide>
                 )}
               </Swiper>
-            </div>
+            </Card>
           </div>
         </div>
       </div>
