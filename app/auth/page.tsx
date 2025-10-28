@@ -271,13 +271,12 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <div className="min-h-screen grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 px-4 md:px-6 py-8">
-        {/* Sol Slider Kart */}
-        <div className="h-full min-h-[680px] md:min-h-[740px] lg:min-h-[780px]">
-          <Card className="h-full rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6 flex flex-col">
-            <div className="flex-1 flex flex-col min-h-[inherit]">
+      <div className="min-h-screen grid lg:grid-cols-3 gap-4 md:gap-6 px-4 md:px-6 py-8">
+          {/* Sol Slider */}
+          <div className="hidden lg:block">
+            <Card className="rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6">
               <Swiper
-                modules={[Autoplay, Pagination, Navigation]}
+                modules={[Autoplay, Pagination]}
                 spaceBetween={30}
                 slidesPerView={1}
                 loop={true}
@@ -288,8 +287,7 @@ export default function AuthPage() {
                 pagination={{
                   clickable: true,
                 }}
-                className="flex-1 h-full min-h-[inherit]"
-                style={{ height: '100%' }}
+                className="h-[500px]"
               >
                 {leftSliders.length > 0 ? (
                   leftSliders.map((slider) => (
@@ -330,21 +328,19 @@ export default function AuthPage() {
                   </SwiperSlide>
                 )}
               </Swiper>
-            </div>
-          </Card>
-        </div>
+            </Card>
+          </div>
 
-        {/* Orta - Form Kart */}
-        <div className="h-full min-h-[680px] md:min-h-[740px] lg:min-h-[780px] order-1 lg:order-none">
-          <Card className="h-full rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6 flex flex-col">
-            <div className="flex-1 flex flex-col">
+          {/* Orta - Form */}
+          <div className="w-full">
+            <Card className="rounded-xl border-turf-border bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="text-center">Hesabınıza Giriş Yapın</CardTitle>
                 <CardDescription className="text-center">
                   Üyeliğiniz varsa giriş yapın, yoksa kayıt olun
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
+              <CardContent>
                 <Tabs defaultValue="register" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="login">Giriş Yap</TabsTrigger>
@@ -751,16 +747,14 @@ export default function AuthPage() {
                   </TabsContent>
                 </Tabs>
               </CardContent>
-            </div>
-          </Card>
-        </div>
+            </Card>
+          </div>
 
-        {/* Sağ Slider Kart */}
-        <div className="h-full min-h-[680px] md:min-h-[740px] lg:min-h-[780px]">
-          <Card className="h-full rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6 flex flex-col">
-            <div className="flex-1 flex flex-col min-h-[inherit]">
+          {/* Sağ Slider */}
+          <div className="hidden lg:block">
+            <Card className="rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6">
               <Swiper
-                modules={[Autoplay, Pagination, Navigation]}
+                modules={[Autoplay, Pagination]}
                 spaceBetween={30}
                 slidesPerView={1}
                 loop={true}
@@ -771,58 +765,49 @@ export default function AuthPage() {
                 pagination={{
                   clickable: true,
                 }}
-                className="flex-1 h-full min-h-[inherit]"
-                style={{ height: '100%' }}
+                className="h-[500px]"
               >
                 {rightSliders.length > 0 ? (
                   rightSliders.map((slider) => (
-                    <SwiperSlide key={slider.id} className="h-full">
-                      <div className="relative h-full w-full rounded-lg overflow-hidden">
-                        {slider.linkUrl ? (
-                          <a href={slider.linkUrl} target="_blank" rel="noopener noreferrer">
+                    <SwiperSlide key={slider.id}>
+                      {slider.linkUrl ? (
+                        <a href={slider.linkUrl} target="_blank" rel="noopener noreferrer">
+                          <div className="relative w-full h-full">
                             <Image
                               src={slider.imageUrl}
                               alt={slider.title || "Hedef Performans"}
                               fill
                               className="object-cover"
                             />
-                            {slider.title && (
-                              <div className="absolute bottom-4 left-4 right-4 bg-black/40 text-white rounded-md px-3 py-2">
-                                <p className="text-sm font-medium">{slider.title}</p>
-                              </div>
-                            )}
-                          </a>
-                        ) : (
-                          <>
-                            <Image
-                              src={slider.imageUrl}
-                              alt={slider.title || "Hedef Performans"}
-                              fill
-                              className="object-cover"
-                            />
-                            {slider.title && (
-                              <div className="absolute bottom-4 left-4 right-4 bg-black/40 text-white rounded-md px-3 py-2">
-                                <p className="text-sm font-medium">{slider.title}</p>
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
+                          </div>
+                        </a>
+                      ) : (
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={slider.imageUrl}
+                            alt={slider.title || "Hedef Performans"}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
                     </SwiperSlide>
                   ))
                 ) : (
-                  <SwiperSlide className="h-full">
-                    <div className="relative h-full w-full rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                      <div className="text-center">
-                        <h3 className="text-2xl font-bold mb-4">Hedef Performans</h3>
-                        <p className="text-lg opacity-80">Futbol kariyerinizi geliştirin</p>
+                  <SwiperSlide>
+                    <div className="relative w-full h-full bg-gradient-to-br from-primary/20 to-accent/20">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <h3 className="text-2xl font-bold mb-4">Hedef Performans</h3>
+                          <p className="text-lg opacity-80">Futbol kariyerinizi geliştirin</p>
+                        </div>
                       </div>
                     </div>
                   </SwiperSlide>
                 )}
               </Swiper>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
