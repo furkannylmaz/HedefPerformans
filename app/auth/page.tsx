@@ -7,7 +7,7 @@ import { z } from "zod"
 import Link from "next/link"
 import Image from "next/image"
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay, Pagination } from "swiper/modules"
+import { Autoplay, Pagination, Navigation } from "swiper/modules"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -243,10 +243,10 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-turf-bg">
       {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+      <div className="bg-white/70 backdrop-blur-sm border-b border-turf-border sticky top-0 z-50">
+        <div className="container mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
@@ -271,23 +271,25 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8 items-center min-h-[80vh]">
-          {/* Sol Slider */}
-          <div className="hidden lg:block">
-            <div className="relative">
+      <div className="min-h-screen grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 px-4 md:px-6 py-8">
+        {/* Sol Slider Kart */}
+        <div className="h-full min-h-[680px] md:min-h-[740px] lg:min-h-[780px]">
+          <Card className="h-full rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6 flex flex-col">
+            <div className="flex-1 flex flex-col min-h-[inherit]">
               <Swiper
-                modules={[Autoplay, Pagination]}
+                modules={[Autoplay, Pagination, Navigation]}
                 spaceBetween={30}
                 slidesPerView={1}
+                loop={true}
                 autoplay={{
-                  delay: 5000,
+                  delay: 3500,
                   disableOnInteraction: false,
                 }}
                 pagination={{
                   clickable: true,
                 }}
-                className="rounded-lg overflow-hidden shadow-lg h-[500px]"
+                className="flex-1 h-full min-h-[inherit]"
+                style={{ height: '100%' }}
               >
                 {leftSliders.length > 0 ? (
                   leftSliders.map((slider) => (
@@ -329,23 +331,20 @@ export default function AuthPage() {
                 )}
               </Swiper>
             </div>
-          </div>
+          </Card>
+        </div>
 
-          {/* Orta - Form */}
-          <div className="w-full max-w-md mx-auto">
-            <div className="text-center mb-8 lg:hidden">
-              <h1 className="text-3xl font-bold text-primary mb-2">Hedef Performans</h1>
-              <p className="text-muted-foreground">Futbol kariyerinizi bir üst seviyeye taşıyın</p>
-            </div>
-
-            <Card>
+        {/* Orta - Form Kart */}
+        <div className="h-full min-h-[680px] md:min-h-[740px] lg:min-h-[780px] order-1 lg:order-none">
+          <Card className="h-full rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6 flex flex-col">
+            <div className="flex-1 flex flex-col">
               <CardHeader>
                 <CardTitle className="text-center">Hesabınıza Giriş Yapın</CardTitle>
                 <CardDescription className="text-center">
                   Üyeliğiniz varsa giriş yapın, yoksa kayıt olun
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1 flex flex-col">
                 <Tabs defaultValue="register" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="login">Giriş Yap</TabsTrigger>
@@ -400,9 +399,15 @@ export default function AuthPage() {
                         )}
                       </div>
 
-                      <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
-                      </Button>
+                      <div className="mt-auto pt-4">
+                        <Button 
+                          type="submit" 
+                          className="w-full bg-neon-green text-black hover:bg-[#26ff96]" 
+                          disabled={isLoading}
+                        >
+                          {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
+                        </Button>
+                      </div>
                     </form>
                   </TabsContent>
 
@@ -417,7 +422,7 @@ export default function AuthPage() {
                     )}
                     <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
                       {/* Kişisel Bilgiler */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="firstName">Ad</Label>
                           <div className="relative">
@@ -487,7 +492,7 @@ export default function AuthPage() {
                       </div>
 
                       {/* Mevki Bilgileri */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="mainPositionKey">Ana Mevki</Label>
                           <Select 
@@ -542,7 +547,7 @@ export default function AuthPage() {
                       </div>
 
                       {/* Konum Bilgileri */}
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="country">Ülke</Label>
                           <Select 
@@ -689,7 +694,7 @@ export default function AuthPage() {
                       </div>
 
                       {/* Opsiyonel Bilgiler */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="team">Takım (Opsiyonel)</Label>
                           <Input
@@ -733,77 +738,91 @@ export default function AuthPage() {
                         </p>
                       )}
 
-                      <Button 
-                        type="submit" 
-                        className="w-full" 
-                        disabled={isLoading || !registerForm.watch("termsAccepted")}
-                      >
-                        {isLoading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
-                      </Button>
+                      <div className="mt-auto pt-4">
+                        <Button 
+                          type="submit" 
+                          className="w-full bg-neon-green text-black hover:bg-[#26ff96]" 
+                          disabled={isLoading || !registerForm.watch("termsAccepted")}
+                        >
+                          {isLoading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
+                        </Button>
+                      </div>
                     </form>
                   </TabsContent>
                 </Tabs>
               </CardContent>
-            </Card>
-          </div>
+            </div>
+          </Card>
+        </div>
 
-          {/* Sağ Slider */}
-          <div className="hidden lg:block">
-            <div className="relative">
+        {/* Sağ Slider Kart */}
+        <div className="h-full min-h-[680px] md:min-h-[740px] lg:min-h-[780px]">
+          <Card className="h-full rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6 flex flex-col">
+            <div className="flex-1 flex flex-col min-h-[inherit]">
               <Swiper
-                modules={[Autoplay, Pagination]}
+                modules={[Autoplay, Pagination, Navigation]}
                 spaceBetween={30}
                 slidesPerView={1}
+                loop={true}
                 autoplay={{
-                  delay: 5000,
+                  delay: 3500,
                   disableOnInteraction: false,
                 }}
                 pagination={{
                   clickable: true,
                 }}
-                className="rounded-lg overflow-hidden shadow-lg h-[500px]"
+                className="flex-1 h-full min-h-[inherit]"
+                style={{ height: '100%' }}
               >
                 {rightSliders.length > 0 ? (
                   rightSliders.map((slider) => (
-                    <SwiperSlide key={slider.id}>
-                      {slider.linkUrl ? (
-                        <a href={slider.linkUrl} target="_blank" rel="noopener noreferrer">
-                          <div className="relative w-full h-full">
+                    <SwiperSlide key={slider.id} className="h-full">
+                      <div className="relative h-full w-full rounded-lg overflow-hidden">
+                        {slider.linkUrl ? (
+                          <a href={slider.linkUrl} target="_blank" rel="noopener noreferrer">
                             <Image
                               src={slider.imageUrl}
                               alt={slider.title || "Hedef Performans"}
                               fill
                               className="object-cover"
                             />
-                          </div>
-                        </a>
-                      ) : (
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={slider.imageUrl}
-                            alt={slider.title || "Hedef Performans"}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      )}
+                            {slider.title && (
+                              <div className="absolute bottom-4 left-4 right-4 bg-black/40 text-white rounded-md px-3 py-2">
+                                <p className="text-sm font-medium">{slider.title}</p>
+                              </div>
+                            )}
+                          </a>
+                        ) : (
+                          <>
+                            <Image
+                              src={slider.imageUrl}
+                              alt={slider.title || "Hedef Performans"}
+                              fill
+                              className="object-cover"
+                            />
+                            {slider.title && (
+                              <div className="absolute bottom-4 left-4 right-4 bg-black/40 text-white rounded-md px-3 py-2">
+                                <p className="text-sm font-medium">{slider.title}</p>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </SwiperSlide>
                   ))
                 ) : (
-                  <SwiperSlide>
-                    <div className="relative w-full h-full bg-gradient-to-br from-primary/20 to-accent/20">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <h3 className="text-2xl font-bold mb-4">Hedef Performans</h3>
-                          <p className="text-lg opacity-80">Futbol kariyerinizi geliştirin</p>
-                        </div>
+                  <SwiperSlide className="h-full">
+                    <div className="relative h-full w-full rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                      <div className="text-center">
+                        <h3 className="text-2xl font-bold mb-4">Hedef Performans</h3>
+                        <p className="text-lg opacity-80">Futbol kariyerinizi geliştirin</p>
                       </div>
                     </div>
                   </SwiperSlide>
                 )}
               </Swiper>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
