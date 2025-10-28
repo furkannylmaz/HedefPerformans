@@ -7,7 +7,7 @@ import { z } from "zod"
 import Link from "next/link"
 import Image from "next/image"
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay, Pagination, Navigation } from "swiper/modules"
+import { Autoplay, Pagination } from "swiper/modules"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -243,10 +243,10 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-turf-bg">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white/70 backdrop-blur-sm border-b border-turf-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 md:px-6 py-4">
+      <div className="border-b bg-card">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
@@ -271,23 +271,23 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <div className="min-h-screen grid lg:grid-cols-3 gap-4 md:gap-6 px-4 md:px-6 py-8">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-8 items-center min-h-[80vh]">
           {/* Sol Slider */}
           <div className="hidden lg:block">
-            <Card className="rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6">
+            <div className="relative">
               <Swiper
                 modules={[Autoplay, Pagination]}
                 spaceBetween={30}
                 slidesPerView={1}
-                loop={true}
                 autoplay={{
-                  delay: 3500,
+                  delay: 5000,
                   disableOnInteraction: false,
                 }}
                 pagination={{
                   clickable: true,
                 }}
-                className="h-[500px]"
+                className="rounded-lg overflow-hidden shadow-lg h-[500px]"
               >
                 {leftSliders.length > 0 ? (
                   leftSliders.map((slider) => (
@@ -328,12 +328,17 @@ export default function AuthPage() {
                   </SwiperSlide>
                 )}
               </Swiper>
-            </Card>
+            </div>
           </div>
 
           {/* Orta - Form */}
-          <div className="w-full">
-            <Card className="rounded-xl border-turf-border bg-white shadow-sm">
+          <div className="w-full max-w-md mx-auto">
+            <div className="text-center mb-8 lg:hidden">
+              <h1 className="text-3xl font-bold text-primary mb-2">Hedef Performans</h1>
+              <p className="text-muted-foreground">Futbol kariyerinizi bir üst seviyeye taşıyın</p>
+            </div>
+
+            <Card>
               <CardHeader>
                 <CardTitle className="text-center">Hesabınıza Giriş Yapın</CardTitle>
                 <CardDescription className="text-center">
@@ -395,15 +400,9 @@ export default function AuthPage() {
                         )}
                       </div>
 
-                      <div className="mt-auto pt-4">
-                        <Button 
-                          type="submit" 
-                          className="w-full bg-neon-green text-black hover:bg-[#26ff96]" 
-                          disabled={isLoading}
-                        >
-                          {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
-                        </Button>
-                      </div>
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
+                      </Button>
                     </form>
                   </TabsContent>
 
@@ -418,7 +417,7 @@ export default function AuthPage() {
                     )}
                     <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
                       {/* Kişisel Bilgiler */}
-                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="firstName">Ad</Label>
                           <div className="relative">
@@ -488,7 +487,7 @@ export default function AuthPage() {
                       </div>
 
                       {/* Mevki Bilgileri */}
-                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="mainPositionKey">Ana Mevki</Label>
                           <Select 
@@ -543,7 +542,7 @@ export default function AuthPage() {
                       </div>
 
                       {/* Konum Bilgileri */}
-                      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="country">Ülke</Label>
                           <Select 
@@ -690,7 +689,7 @@ export default function AuthPage() {
                       </div>
 
                       {/* Opsiyonel Bilgiler */}
-                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="team">Takım (Opsiyonel)</Label>
                           <Input
@@ -734,15 +733,13 @@ export default function AuthPage() {
                         </p>
                       )}
 
-                      <div className="mt-auto pt-4">
-                        <Button 
-                          type="submit" 
-                          className="w-full bg-neon-green text-black hover:bg-[#26ff96]" 
-                          disabled={isLoading || !registerForm.watch("termsAccepted")}
-                        >
-                          {isLoading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
-                        </Button>
-                      </div>
+                      <Button 
+                        type="submit" 
+                        className="w-full" 
+                        disabled={isLoading || !registerForm.watch("termsAccepted")}
+                      >
+                        {isLoading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
+                      </Button>
                     </form>
                   </TabsContent>
                 </Tabs>
@@ -752,20 +749,19 @@ export default function AuthPage() {
 
           {/* Sağ Slider */}
           <div className="hidden lg:block">
-            <Card className="rounded-xl border-turf-border bg-white shadow-sm p-4 md:p-6">
+            <div className="relative">
               <Swiper
                 modules={[Autoplay, Pagination]}
                 spaceBetween={30}
                 slidesPerView={1}
-                loop={true}
                 autoplay={{
-                  delay: 3500,
+                  delay: 5000,
                   disableOnInteraction: false,
                 }}
                 pagination={{
                   clickable: true,
                 }}
-                className="h-[500px]"
+                className="rounded-lg overflow-hidden shadow-lg h-[500px]"
               >
                 {rightSliders.length > 0 ? (
                   rightSliders.map((slider) => (
@@ -806,7 +802,7 @@ export default function AuthPage() {
                   </SwiperSlide>
                 )}
               </Swiper>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
