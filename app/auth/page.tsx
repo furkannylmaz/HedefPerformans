@@ -644,8 +644,8 @@ export default function AuthPage() {
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             id="register-email"
-                type="email"
-                placeholder="ornek@email.com"
+                            type="email"
+                            placeholder="ornek@email.com"
                             className="pl-10"
                             {...registerForm.register("email")}
                           />
