@@ -88,14 +88,6 @@ export default function AdminAuthPage() {
               />
             </div>
 
-            <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="h-4 w-4 text-red-600 mt-0.5" />
-                <p className="text-xs text-gray-700">
-                  Demo: admin@hedefperformans.com / admin123
-                </p>
-              </div>
-            </div>
 
             <Button 
               type="submit" 

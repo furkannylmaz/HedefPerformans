@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 
-const prisma = new PrismaClient()
+// Dynamic route - build-time execution'ı önle
+export const dynamic = 'force-dynamic'
 
 // PUT - Slider güncelle
 export async function PUT(
@@ -29,9 +30,22 @@ export async function PUT(
       data: { slider }
     })
   } catch (error) {
-    console.error("Slider update error:", error)
+    console.error("[Sliders API] PUT Error:", error)
+    
+    // Detaylı error logging
+    if (error instanceof Error) {
+      console.error("[Sliders API] Error message:", error.message)
+      console.error("[Sliders API] Error stack:", error.stack)
+    }
+    
     return NextResponse.json(
-      { success: false, message: "Slider güncellenirken hata oluştu" },
+      { 
+        success: false, 
+        message: "Slider güncellenirken hata oluştu",
+        error: process.env.NODE_ENV === 'development' 
+          ? (error instanceof Error ? error.message : 'Bilinmeyen hata')
+          : undefined
+      },
       { status: 500 }
     )
   }
@@ -52,9 +66,22 @@ export async function DELETE(
       message: "Slider silindi"
     })
   } catch (error) {
-    console.error("Slider delete error:", error)
+    console.error("[Sliders API] DELETE Error:", error)
+    
+    // Detaylı error logging
+    if (error instanceof Error) {
+      console.error("[Sliders API] Error message:", error.message)
+      console.error("[Sliders API] Error stack:", error.stack)
+    }
+    
     return NextResponse.json(
-      { success: false, message: "Slider silinirken hata oluştu" },
+      { 
+        success: false, 
+        message: "Slider silinirken hata oluştu",
+        error: process.env.NODE_ENV === 'development' 
+          ? (error instanceof Error ? error.message : 'Bilinmeyen hata')
+          : undefined
+      },
       { status: 500 }
     )
   }

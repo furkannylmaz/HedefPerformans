@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+
+// Dynamic route - build-time execution'ı önle
+export const dynamic = 'force-dynamic'
 import {
   HOMEPAGE_SETTING_KEY,
   SITE_INFO_SETTING_KEY,
@@ -77,7 +80,30 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ success: false, message: 'Desteklenmeyen key' }, { status: 400 })
   } catch (error) {
     console.error('[SiteSettings][PUT] error', error)
-    return NextResponse.json({ success: false, message: 'Kayıt sırasında bir hata oluştu' }, { status: 500 })
+    
+    // Detaylı error logging
+    if (error instanceof Error) {
+      console.error('[SiteSettings][PUT] Error message:', error.message)
+      console.error('[SiteSettings][PUT] Error stack:', error.stack)
+      
+      // Database connection error
+      if (error.message.includes('DATABASE_URL') || error.message.includes('connect')) {
+        console.error('[SiteSettings][PUT] Database connection error detected')
+        return NextResponse.json({ 
+          success: false, 
+          message: 'Veritabanı bağlantı hatası. Lütfen yöneticiye bildirin.',
+          error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        }, { status: 500 })
+      }
+    }
+    
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Kayıt sırasında bir hata oluştu',
+      error: process.env.NODE_ENV === 'development' 
+        ? (error instanceof Error ? error.message : 'Bilinmeyen hata')
+        : undefined
+    }, { status: 500 })
   }
 }
 

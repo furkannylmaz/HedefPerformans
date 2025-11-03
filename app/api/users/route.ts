@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma'
 
+// Dynamic route - build-time execution'ı önle
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -129,11 +132,30 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error("Users list error:", error)
+    console.error("[Users API] Error:", error)
+    
+    // Detaylı error logging
+    if (error instanceof Error) {
+      console.error("[Users API] Error message:", error.message)
+      console.error("[Users API] Error stack:", error.stack)
+      
+      // Database connection error
+      if (error.message.includes('DATABASE_URL') || error.message.includes('connect')) {
+        console.error("[Users API] Database connection error detected")
+        return NextResponse.json({
+          success: false,
+          message: "Veritabanı bağlantı hatası. Lütfen yöneticiye bildirin.",
+          error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        }, { status: 500 })
+      }
+    }
+    
     return NextResponse.json({
       success: false,
       message: "Kullanıcı listesi alınırken hata oluştu",
-      error: error instanceof Error ? error.message : 'Bilinmeyen hata'
+      error: process.env.NODE_ENV === 'development' 
+        ? (error instanceof Error ? error.message : 'Bilinmeyen hata')
+        : undefined
     }, { status: 500 })
   }
 }

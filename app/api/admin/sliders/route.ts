@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 
-const prisma = new PrismaClient()
+// Dynamic route - build-time execution'ı önle
+export const dynamic = 'force-dynamic'
 
 // GET - Tüm slider'ları listele
 export async function GET() {
@@ -18,9 +19,22 @@ export async function GET() {
       data: { sliders }
     })
   } catch (error) {
-    console.error("Slider list error:", error)
+    console.error("[Sliders API] GET Error:", error)
+    
+    // Detaylı error logging
+    if (error instanceof Error) {
+      console.error("[Sliders API] Error message:", error.message)
+      console.error("[Sliders API] Error stack:", error.stack)
+    }
+    
     return NextResponse.json(
-      { success: false, message: "Slider listesi yüklenirken hata oluştu" },
+      { 
+        success: false, 
+        message: "Slider listesi yüklenirken hata oluştu",
+        error: process.env.NODE_ENV === 'development' 
+          ? (error instanceof Error ? error.message : 'Bilinmeyen hata')
+          : undefined
+      },
       { status: 500 }
     )
   }
@@ -55,9 +69,35 @@ export async function POST(request: Request) {
       data: { slider }
     })
   } catch (error) {
-    console.error("Slider create error:", error)
+    console.error("[Sliders API] POST Error:", error)
+    
+    // Detaylı error logging
+    if (error instanceof Error) {
+      console.error("[Sliders API] Error message:", error.message)
+      console.error("[Sliders API] Error stack:", error.stack)
+      
+      // Database connection error
+      if (error.message.includes('DATABASE_URL') || error.message.includes('connect')) {
+        console.error("[Sliders API] Database connection error detected")
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: "Veritabanı bağlantı hatası. Lütfen yöneticiye bildirin.",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+          },
+          { status: 500 }
+        )
+      }
+    }
+    
     return NextResponse.json(
-      { success: false, message: "Slider eklenirken hata oluştu" },
+      { 
+        success: false, 
+        message: "Slider eklenirken hata oluştu",
+        error: process.env.NODE_ENV === 'development' 
+          ? (error instanceof Error ? error.message : 'Bilinmeyen hata')
+          : undefined
+      },
       { status: 500 }
     )
   }
