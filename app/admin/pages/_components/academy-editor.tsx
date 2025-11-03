@@ -344,7 +344,7 @@ export function AcademyPageEditor() {
                     <Input
                       type="number"
                       value={section.order}
-                      onChange={(e) => updateSection(index, "order", parseInt(e.target.value) || 0)}
+                      onChange={(e) => updateSection(index, "order", e.target.value)}
                     />
                   </div>
                   <div>
