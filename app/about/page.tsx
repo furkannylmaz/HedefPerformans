@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SiteHeader } from "@/components/site-header"
 import { getAboutPageContent } from "@/lib/site-settings"
 
+export const dynamic = 'force-dynamic'
+
 const valueIcons = {
   scientific: Award,
   excellence: Target,

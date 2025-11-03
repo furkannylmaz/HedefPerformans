@@ -53,9 +53,14 @@ function parseSetting<T>(value?: string | null): T | undefined {
 }
 
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: HOMEPAGE_SETTING_KEY } })
-  const parsed = parseSetting<HomepageContent>(setting?.value)
-  return mergeHomepageContent(parsed)
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: HOMEPAGE_SETTING_KEY } })
+    const parsed = parseSetting<HomepageContent>(setting?.value)
+    return mergeHomepageContent(parsed)
+  } catch (error) {
+    console.error('[getHomepageContent] Database error, using defaults:', error)
+    return mergeHomepageContent(undefined)
+  }
 }
 
 export async function saveHomepageContent(content: HomepageContent) {
@@ -72,9 +77,14 @@ export async function saveHomepageContent(content: HomepageContent) {
 }
 
 export async function getSiteInfo(): Promise<SiteInfo> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: SITE_INFO_SETTING_KEY } })
-  const parsed = parseSetting<SiteInfo>(setting?.value)
-  return mergeSiteInfo(parsed)
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: SITE_INFO_SETTING_KEY } })
+    const parsed = parseSetting<SiteInfo>(setting?.value)
+    return mergeSiteInfo(parsed)
+  } catch (error) {
+    console.error('[getSiteInfo] Database error, using defaults:', error)
+    return mergeSiteInfo(undefined)
+  }
 }
 
 export async function saveSiteInfo(info: SiteInfo) {
@@ -101,25 +111,30 @@ export interface SliderItem {
 }
 
 export async function getBanners(side?: 'LEFT' | 'RIGHT' | 'MAIN' | 'WELCOME_RIGHT'): Promise<SliderItem[]> {
-  const where: {
-    isActive: boolean
-    side?: string
-  } = {
-    isActive: true,
+  try {
+    const where: {
+      isActive: boolean
+      side?: string
+    } = {
+      isActive: true,
+    }
+
+    if (side) {
+      where.side = side
+    }
+
+    const sliders = await prisma.sliderItem.findMany({
+      where,
+      orderBy: {
+        sort: 'asc',
+      },
+    })
+
+    return sliders
+  } catch (error) {
+    console.error('[getBanners] Database error, returning empty array:', error)
+    return []
   }
-
-  if (side) {
-    where.side = side
-  }
-
-  const sliders = await prisma.sliderItem.findMany({
-    where,
-    orderBy: {
-      sort: 'asc',
-    },
-  })
-
-  return sliders
 }
 
 export async function getWelcomeRightImage(): Promise<string | null> {
@@ -129,9 +144,14 @@ export async function getWelcomeRightImage(): Promise<string | null> {
 
 // Sayfa içerikleri için fonksiyonlar
 export async function getServicesPageContent(): Promise<ServicesPageContent> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: SERVICES_PAGE_KEY } })
-  const parsed = parseSetting<ServicesPageContent>(setting?.value)
-  return mergePageContent('services', parsed, defaultServicesPageContent)
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: SERVICES_PAGE_KEY } })
+    const parsed = parseSetting<ServicesPageContent>(setting?.value)
+    return mergePageContent('services', parsed, defaultServicesPageContent)
+  } catch (error) {
+    console.error('[getServicesPageContent] Database error, using defaults:', error)
+    return defaultServicesPageContent
+  }
 }
 
 export async function saveServicesPageContent(content: ServicesPageContent) {
@@ -143,9 +163,14 @@ export async function saveServicesPageContent(content: ServicesPageContent) {
 }
 
 export async function getAcademyPageContent(): Promise<AcademyPageContent> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: ACADEMY_PAGE_KEY } })
-  const parsed = parseSetting<AcademyPageContent>(setting?.value)
-  return mergePageContent('academy', parsed, defaultAcademyPageContent)
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: ACADEMY_PAGE_KEY } })
+    const parsed = parseSetting<AcademyPageContent>(setting?.value)
+    return mergePageContent('academy', parsed, defaultAcademyPageContent)
+  } catch (error) {
+    console.error('[getAcademyPageContent] Database error, using defaults:', error)
+    return defaultAcademyPageContent
+  }
 }
 
 export async function saveAcademyPageContent(content: AcademyPageContent) {
@@ -157,9 +182,14 @@ export async function saveAcademyPageContent(content: AcademyPageContent) {
 }
 
 export async function getMovementTrainingPageContent(): Promise<MovementTrainingPageContent> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: MOVEMENT_TRAINING_PAGE_KEY } })
-  const parsed = parseSetting<MovementTrainingPageContent>(setting?.value)
-  return mergePageContent('movementTraining', parsed, defaultMovementTrainingPageContent)
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: MOVEMENT_TRAINING_PAGE_KEY } })
+    const parsed = parseSetting<MovementTrainingPageContent>(setting?.value)
+    return mergePageContent('movementTraining', parsed, defaultMovementTrainingPageContent)
+  } catch (error) {
+    console.error('[getMovementTrainingPageContent] Database error, using defaults:', error)
+    return defaultMovementTrainingPageContent
+  }
 }
 
 export async function saveMovementTrainingPageContent(content: MovementTrainingPageContent) {
@@ -171,9 +201,14 @@ export async function saveMovementTrainingPageContent(content: MovementTrainingP
 }
 
 export async function getAboutPageContent(): Promise<AboutPageContent> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: ABOUT_PAGE_KEY } })
-  const parsed = parseSetting<AboutPageContent>(setting?.value)
-  return mergePageContent('about', parsed, defaultAboutPageContent)
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: ABOUT_PAGE_KEY } })
+    const parsed = parseSetting<AboutPageContent>(setting?.value)
+    return mergePageContent('about', parsed, defaultAboutPageContent)
+  } catch (error) {
+    console.error('[getAboutPageContent] Database error, using defaults:', error)
+    return defaultAboutPageContent
+  }
 }
 
 export async function saveAboutPageContent(content: AboutPageContent) {
@@ -185,9 +220,14 @@ export async function saveAboutPageContent(content: AboutPageContent) {
 }
 
 export async function getContactPageContent(): Promise<ContactPageContent> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: CONTACT_PAGE_KEY } })
-  const parsed = parseSetting<ContactPageContent>(setting?.value)
-  return mergePageContent('contact', parsed, defaultContactPageContent)
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: CONTACT_PAGE_KEY } })
+    const parsed = parseSetting<ContactPageContent>(setting?.value)
+    return mergePageContent('contact', parsed, defaultContactPageContent)
+  } catch (error) {
+    console.error('[getContactPageContent] Database error, using defaults:', error)
+    return defaultContactPageContent
+  }
 }
 
 export async function saveContactPageContent(content: ContactPageContent) {

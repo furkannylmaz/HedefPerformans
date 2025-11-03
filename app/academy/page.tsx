@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SiteHeader } from "@/components/site-header"
 import { getAcademyPageContent } from "@/lib/site-settings"
 
+export const dynamic = 'force-dynamic'
+
 export default async function AcademyPage() {
   const content = await getAcademyPageContent()
 
