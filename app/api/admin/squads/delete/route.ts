@@ -20,7 +20,7 @@ export async function DELETE(request: NextRequest) {
       where: { id: squadId },
       include: {
         assignments: true,
-        whatsappGroup: true
+        whatsAppGroup: true
       }
     })
 
@@ -42,9 +42,9 @@ export async function DELETE(request: NextRequest) {
     // Kadroyu sil (cascade delete sayesinde ilgili kayıtlar da silinir)
     await prisma.$transaction(async (tx) => {
       // WhatsApp grubu varsa sil
-      if (squad.whatsappGroup) {
-        await tx.whatsappGroup.delete({
-          where: { id: squad.whatsappGroup.id }
+      if (squad.whatsAppGroup) {
+        await tx.whatsAppGroup.delete({
+          where: { id: squad.whatsAppGroup.id }
         })
       }
 
