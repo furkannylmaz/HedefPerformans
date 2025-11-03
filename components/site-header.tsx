@@ -35,7 +35,7 @@ export function SiteHeader() {
           </Link>
 
           {/* Desktop Navigation - Orta kısım */}
-          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center mx-4">
+          <nav className="hidden md:flex md:items-center md:gap-1 md:flex-1 md:justify-center md:mx-4">
             {navLinks.map((link) => (
               <Button
                 key={link.href}
@@ -50,7 +50,7 @@ export function SiteHeader() {
           </nav>
 
           {/* Desktop Auth Buttons - Sağ taraf */}
-          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+          <div className="hidden md:flex md:items-center md:gap-3 md:flex-shrink-0">
             <Button
               asChild
               variant="ghost"
