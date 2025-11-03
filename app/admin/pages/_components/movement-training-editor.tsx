@@ -1,70 +1,74 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { Upload, Save, Plus, Trash2 } from "lucide-react"
-import { MovementTrainingPageContent, defaultMovementTrainingPageContent } from "@/lib/pages-content"
-import { MOVEMENT_TRAINING_PAGE_KEY } from "@/lib/site-settings"
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Upload, Save, Plus, Trash2 } from "lucide-react";
+import {
+  MovementTrainingPageContent,
+  defaultMovementTrainingPageContent,
+} from "@/lib/pages-content";
+import { MOVEMENT_TRAINING_PAGE_KEY } from "@/lib/site-settings";
 
-const API_ENDPOINT = "/api/admin/pages"
+const API_ENDPOINT = "/api/admin/pages";
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
-    return `${prefix}-${crypto.randomUUID()}`
+    return `${prefix}-${crypto.randomUUID()}`;
   }
-  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 }
 
 export function MovementTrainingPageEditor() {
-  const [content, setContent] = useState<MovementTrainingPageContent>(defaultMovementTrainingPageContent)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState<string | null>(null)
+  const [content, setContent] = useState<MovementTrainingPageContent>(
+    defaultMovementTrainingPageContent
+  );
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const response = await fetch(`${API_ENDPOINT}?key=${MOVEMENT_TRAINING_PAGE_KEY}`)
-        const data = await response.json()
+        const response = await fetch(
+          `${API_ENDPOINT}?key=${MOVEMENT_TRAINING_PAGE_KEY}`
+        );
+        const data = await response.json();
 
         if (data.success && data.data) {
-          setContent(data.data as MovementTrainingPageContent)
+          setContent(data.data as MovementTrainingPageContent);
         }
       } catch (error) {
-        console.error("[MovementTrainingPageEditor] fetch error", error)
-        toast.error("İçerik yüklenirken bir hata oluştu")
+        console.error("[MovementTrainingPageEditor] fetch error", error);
+        toast.error("İçerik yüklenirken bir hata oluştu");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchContent()
-  }, [])
+    fetchContent();
+  }, []);
 
-  const handleFileUpload = async (
-    fieldPath: string,
-    file: File,
-  ) => {
-    setUploading(fieldPath)
-    const formData = new FormData()
-    formData.append("file", file)
+  const handleFileUpload = async (fieldPath: string, file: File) => {
+    setUploading(fieldPath);
+    const formData = new FormData();
+    formData.append("file", file);
 
     try {
       const response = await fetch("/api/admin/sliders/upload", {
         method: "POST",
         body: formData,
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success && data.data?.url) {
-        const pathParts = fieldPath.split(".")
+        const pathParts = fieldPath.split(".");
         if (pathParts.length === 2 && pathParts[0] === "hero") {
           setContent((prev) => ({
             ...prev,
@@ -72,32 +76,32 @@ export function MovementTrainingPageEditor() {
               ...prev.hero,
               [pathParts[1] as keyof typeof prev.hero]: data.data.url,
             },
-          }))
+          }));
         } else if (pathParts.length === 3 && pathParts[0] === "sections") {
-          const sectionIndex = parseInt(pathParts[1])
+          const sectionIndex = parseInt(pathParts[1]);
           setContent((prev) => {
-            const next = [...prev.sections]
+            const next = [...prev.sections];
             next[sectionIndex] = {
               ...next[sectionIndex],
               imageUrl: data.data.url,
-            }
-            return { ...prev, sections: next }
-          })
+            };
+            return { ...prev, sections: next };
+          });
         }
-        toast.success("Görsel başarıyla yüklendi")
+        toast.success("Görsel başarıyla yüklendi");
       } else {
-        toast.error(data.message || "Görsel yüklenemedi")
+        toast.error(data.message || "Görsel yüklenemedi");
       }
     } catch (error) {
-      console.error("[MovementTrainingPageEditor] upload error", error)
-      toast.error("Görsel yüklenirken bir hata oluştu")
+      console.error("[MovementTrainingPageEditor] upload error", error);
+      toast.error("Görsel yüklenirken bir hata oluştu");
     } finally {
-      setUploading(null)
+      setUploading(null);
     }
-  }
+  };
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
       const response = await fetch(API_ENDPOINT, {
         method: "PUT",
@@ -106,47 +110,50 @@ export function MovementTrainingPageEditor() {
           key: MOVEMENT_TRAINING_PAGE_KEY,
           value: content,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        toast.success("İçerik başarıyla kaydedildi")
+        toast.success("İçerik başarıyla kaydedildi");
       } else {
-        toast.error(data.message || "Kayıt sırasında bir hata oluştu")
+        toast.error(data.message || "Kayıt sırasında bir hata oluştu");
       }
     } catch (error) {
-      console.error("[MovementTrainingPageEditor] save error", error)
-      toast.error("Kayıt sırasında bir hata oluştu")
+      console.error("[MovementTrainingPageEditor] save error", error);
+      toast.error("Kayıt sırasında bir hata oluştu");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
-  const updateHero = (field: keyof MovementTrainingPageContent["hero"], value: string) => {
+  const updateHero = (
+    field: keyof MovementTrainingPageContent["hero"],
+    value: string
+  ) => {
     setContent((prev) => ({
       ...prev,
       hero: {
         ...prev.hero,
         [field]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const updateSection = (
     index: number,
     field: keyof MovementTrainingPageContent["sections"][0],
-    value: string,
+    value: string | number // 🔥 hem string hem number olabilir
   ) => {
     setContent((prev) => {
-      const next = [...prev.sections]
+      const next = [...prev.sections];
       next[index] = {
         ...next[index],
         [field]: value,
-      }
-      return { ...prev, sections: next }
-    })
-  }
+      };
+      return { ...prev, sections: next };
+    });
+  };
 
   const addSection = () => {
     setContent((prev) => ({
@@ -160,40 +167,40 @@ export function MovementTrainingPageEditor() {
           order: prev.sections.length + 1,
         },
       ],
-    }))
-  }
+    }));
+  };
 
   const removeSection = (index: number) => {
     setContent((prev) => ({
       ...prev,
       sections: prev.sections.filter((_, i) => i !== index),
-    }))
-  }
+    }));
+  };
 
   const addBenefit = () => {
     setContent((prev) => ({
       ...prev,
       benefits: [...prev.benefits, "Yeni fayda"],
-    }))
-  }
+    }));
+  };
 
   const updateBenefit = (index: number, value: string) => {
     setContent((prev) => {
-      const next = [...prev.benefits]
-      next[index] = value
-      return { ...prev, benefits: next }
-    })
-  }
+      const next = [...prev.benefits];
+      next[index] = value;
+      return { ...prev, benefits: next };
+    });
+  };
 
   const removeBenefit = (index: number) => {
     setContent((prev) => ({
       ...prev,
       benefits: prev.benefits.filter((_, i) => i !== index),
-    }))
-  }
+    }));
+  };
 
   if (loading) {
-    return <div className="text-center py-12">Yükleniyor...</div>
+    return <div className="text-center py-12">Yükleniyor...</div>;
   }
 
   return (
@@ -240,18 +247,24 @@ export function MovementTrainingPageEditor() {
                 className="hidden"
                 id="hero-background-upload-movement"
                 onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) handleFileUpload("hero.backgroundImage", file)
+                  const file = e.target.files?.[0];
+                  if (file) handleFileUpload("hero.backgroundImage", file);
                 }}
               />
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => document.getElementById("hero-background-upload-movement")?.click()}
+                onClick={() =>
+                  document
+                    .getElementById("hero-background-upload-movement")
+                    ?.click()
+                }
                 disabled={uploading === "hero.backgroundImage"}
               >
                 <Upload className="h-4 w-4 mr-2" />
-                {uploading === "hero.backgroundImage" ? "Yükleniyor..." : "Yükle"}
+                {uploading === "hero.backgroundImage"
+                  ? "Yükleniyor..."
+                  : "Yükle"}
               </Button>
             </div>
           </div>
@@ -273,7 +286,9 @@ export function MovementTrainingPageEditor() {
             .map((section, index) => (
               <Card key={section.id} className="bg-gray-50 border-gray-200">
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg text-gray-900">Bölüm {index + 1}</CardTitle>
+                  <CardTitle className="text-lg text-gray-900">
+                    Bölüm {index + 1}
+                  </CardTitle>
                   <Button
                     onClick={() => removeSection(index)}
                     variant="destructive"
@@ -287,14 +302,18 @@ export function MovementTrainingPageEditor() {
                     <Label>Başlık</Label>
                     <Input
                       value={section.title}
-                      onChange={(e) => updateSection(index, "title", e.target.value)}
+                      onChange={(e) =>
+                        updateSection(index, "title", e.target.value)
+                      }
                     />
                   </div>
                   <div>
                     <Label>Açıklama</Label>
                     <Textarea
                       value={section.description}
-                      onChange={(e) => updateSection(index, "description", e.target.value)}
+                      onChange={(e) =>
+                        updateSection(index, "description", e.target.value)
+                      }
                       rows={3}
                     />
                   </div>
@@ -303,7 +322,9 @@ export function MovementTrainingPageEditor() {
                     <div className="flex gap-2">
                       <Input
                         value={section.imageUrl || ""}
-                        onChange={(e) => updateSection(index, "imageUrl", e.target.value)}
+                        onChange={(e) =>
+                          updateSection(index, "imageUrl", e.target.value)
+                        }
                         placeholder="Görsel URL"
                       />
                       <input
@@ -312,18 +333,30 @@ export function MovementTrainingPageEditor() {
                         className="hidden"
                         id={`section-image-upload-movement-${index}`}
                         onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file) handleFileUpload(`sections.${index}.imageUrl`, file)
+                          const file = e.target.files?.[0];
+                          if (file)
+                            handleFileUpload(
+                              `sections.${index}.imageUrl`,
+                              file
+                            );
                         }}
                       />
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => document.getElementById(`section-image-upload-movement-${index}`)?.click()}
+                        onClick={() =>
+                          document
+                            .getElementById(
+                              `section-image-upload-movement-${index}`
+                            )
+                            ?.click()
+                        }
                         disabled={uploading === `sections.${index}.imageUrl`}
                       >
                         <Upload className="h-4 w-4 mr-2" />
-                        {uploading === `sections.${index}.imageUrl` ? "Yükleniyor..." : "Yükle"}
+                        {uploading === `sections.${index}.imageUrl`
+                          ? "Yükleniyor..."
+                          : "Yükle"}
                       </Button>
                     </div>
                   </div>
@@ -332,7 +365,9 @@ export function MovementTrainingPageEditor() {
                     <Input
                       type="number"
                       value={section.order}
-                      onChange={(e) => updateSection(index, "order", parseInt(e.target.value) || 0)}
+                      onChange={(e) =>
+                        updateSection(index, "order", e.target.value)
+                      }
                     />
                   </div>
                 </CardContent>
@@ -373,7 +408,9 @@ export function MovementTrainingPageEditor() {
       {/* CTA */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-xl text-gray-900">Çağrı Bölümü (CTA)</CardTitle>
+          <CardTitle className="text-xl text-gray-900">
+            Çağrı Bölümü (CTA)
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -430,11 +467,15 @@ export function MovementTrainingPageEditor() {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={saving} className="bg-red-600 hover:bg-red-700">
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-red-600 hover:bg-red-700"
+        >
           <Save className="h-4 w-4 mr-2" />
           {saving ? "Kaydediliyor..." : "Kaydet"}
         </Button>
       </div>
     </div>
-  )
+  );
 }
