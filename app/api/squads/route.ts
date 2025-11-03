@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         whatsappGroup: squad.whatsappGroup ? {
           id: squad.whatsappGroup.id,
           groupName: squad.whatsappGroup.groupName,
-          inviteUrl: squad.whatsappGroup.inviteUrl,
+          inviteLink: squad.whatsappGroup.inviteLink,
           isActive: squad.whatsappGroup.isActive
         } : null
       }
