@@ -30,6 +30,7 @@ export type {
   AboutPageContent,
   ContactPageContent,
 } from '@/lib/pages-content'
+export { mergePageContent } from '@/lib/pages-content'
 
 export const HOMEPAGE_SETTING_KEY = 'homepage'
 export const SITE_INFO_SETTING_KEY = 'siteInfo'

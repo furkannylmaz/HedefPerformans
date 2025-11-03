@@ -16,7 +16,6 @@ import {
   saveMovementTrainingPageContent,
   saveAboutPageContent,
   saveContactPageContent,
-  mergePageContent,
 } from '@/lib/site-settings'
 import {
   defaultServicesPageContent,
