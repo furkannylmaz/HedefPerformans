@@ -278,7 +278,7 @@ export default function AdminUsersPage() {
         user.age.toString(),
         user.city,
         user.paymentStatus === 'PAID' ? 'Ödendi' : user.paymentStatus === 'PENDING' ? 'Beklemede' : 'Başarısız',
-        user.status === 'PAID' || user.status === 'ACTIVE' ? 'Aktif' : user.status === 'PENDING' ? 'Beklemede' : 'Askıya Alındı',
+        user.status === 'ACTIVE' ? 'Aktif' : user.status === 'PENDING' ? 'Beklemede' : 'Askıya Alındı',
         new Date(user.joinDate).toLocaleDateString('tr-TR')
       ])
 
