@@ -60,10 +60,10 @@ export function mergeSiteInfo(partial?: Partial<SiteInfo>): SiteInfo {
       ...defaultSiteInfo.socials,
       ...partial.socials,
     },
-    bankInfo: {
+    bankInfo: partial.bankInfo ? {
       ...defaultSiteInfo.bankInfo,
       ...partial.bankInfo,
-    },
+    } : defaultSiteInfo.bankInfo,
   }
 }
 

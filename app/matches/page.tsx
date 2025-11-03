@@ -177,7 +177,7 @@ export default function MatchesPage() {
                     videoUrl: match.videoUrl,
                     duration: match.duration,
                     viewCount: match.viewCount,
-                    quality: match.quality,
+                    quality: (match.quality === 'FHD_1080P' || match.quality === 'HD_720P') ? match.quality : 'HD_720P',
                     createdAt: match.createdAt,
                     user: {
                       firstName: "Admin",

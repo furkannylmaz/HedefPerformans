@@ -27,6 +27,8 @@ describe('Squad Assignment Logic', () => {
     await prisma.memberProfile.create({
       data: {
         userId: testUser.id,
+        firstName: testUser.firstName,
+        lastName: testUser.lastName,
         birthYear: 2016,
         mainPositionKey: 'SAG_KANAT',
         altPositionKey: 'FORVET',
@@ -68,6 +70,8 @@ describe('Squad Assignment Logic', () => {
       await prisma.memberProfile.create({
         data: {
           userId: testUser2.id,
+          firstName: testUser2.firstName,
+          lastName: testUser2.lastName,
           birthYear: 2016,
           mainPositionKey: 'SAG_KANAT',
           altPositionKey: 'FORVET',
@@ -149,6 +153,8 @@ describe('Squad Assignment Logic', () => {
         await prisma.memberProfile.create({
           data: {
             userId: testUser.id,
+            firstName: testUser.firstName,
+            lastName: testUser.lastName,
             birthYear: 2016,
             mainPositionKey: 'SAG_KANAT',
             altPositionKey: 'FORVET',
@@ -209,6 +215,8 @@ describe('Squad Assignment Logic', () => {
       await prisma.memberProfile.create({
         data: {
           userId: testUser.id,
+          firstName: testUser.firstName,
+          lastName: testUser.lastName,
           birthYear: 2016,
           mainPositionKey: 'SAG_KANAT',
           altPositionKey: 'FORVET',

@@ -40,7 +40,13 @@ async function triggerAssignments() {
           altPositionKey: user.memberProfile.altPositionKey || undefined
         })
         
-        console.log(`   ✅ Atama: ${assignment.squad.name} - ${assignment.positionKey} #${assignment.number}`)
+        // Squad bilgisini getir
+        const squad = await prisma.squad.findUnique({
+          where: { id: assignment.squadId },
+          select: { name: true }
+        })
+        
+        console.log(`   ✅ Atama: ${squad?.name || assignment.squadId} - ${assignment.positionKey} #${assignment.number}`)
       } catch (error: any) {
         console.log(`   ❌ Hata: ${error.message}`)
       }

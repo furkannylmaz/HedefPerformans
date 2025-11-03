@@ -430,6 +430,7 @@ export interface ContactPageContent {
     title: string
     subtitle: string
     description: string
+    backgroundImage?: string
   }
   contact: {
     email: string

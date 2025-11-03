@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals'
 import { PrismaClient } from '@prisma/client'
 import { 
-  listSquadsByAgeGroupAndTemplate,
+  listActiveSquads,
   autoAssignUser,
   getTemplateForBirthYear,
   getAgeGroupCode
@@ -139,7 +139,7 @@ describe('Squad Assignment Algorithm', () => {
       }
 
       // Kadroları sırala
-      const orderedSquads = await listSquadsByAgeGroupAndTemplate('U2016', '7+1')
+      const orderedSquads = await listActiveSquads('U2016', '7+1')
 
       // Beklenen sıralama: B (50%) -> A (75%)
       expect(orderedSquads).toHaveLength(2)
@@ -195,7 +195,7 @@ describe('Squad Assignment Algorithm', () => {
       })
 
       // Kadroları sırala
-      const orderedSquads = await listSquadsByAgeGroupAndTemplate('U2016', '7+1')
+      const orderedSquads = await listActiveSquads('U2016', '7+1')
 
       // Beklenen sıralama: B (daha eski) -> C (daha yeni)
       expect(orderedSquads).toHaveLength(2)

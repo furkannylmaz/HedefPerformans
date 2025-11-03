@@ -11,6 +11,9 @@ import {
   validatePositionForTemplate,
   getAgeGroupCode
 } from './positions'
+
+// Re-export getAgeGroupCode
+export { getAgeGroupCode } from './positions'
 import { sendSquadAssignmentEmail } from '@/lib/email'
 
 const prisma = new PrismaClient()

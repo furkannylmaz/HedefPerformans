@@ -237,7 +237,7 @@ export default function VideosPage() {
                       videoUrl: video.videoUrl,
                       duration: video.duration,
                       viewCount: video.viewCount,
-                      quality: video.quality,
+                      quality: (video.quality === 'FHD_1080P' || video.quality === 'HD_720P') ? video.quality : 'HD_720P',
                       createdAt: video.createdAt,
                       user: {
                         firstName: video.user.firstName,
