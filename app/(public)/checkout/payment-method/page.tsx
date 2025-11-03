@@ -51,7 +51,7 @@ export default function PaymentMethodPage() {
           <CardContent className="space-y-4">
             {/* Kredi Kartı ile Ödeme */}
             <Card
-              className={`cursor-pointer transition-all ${
+              className={`hidden cursor-pointer transition-all ${
                 selectedMethod === "card"
                   ? "ring-2 ring-primary border-primary"
                   : "hover:border-primary/50"

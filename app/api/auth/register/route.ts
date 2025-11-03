@@ -30,6 +30,8 @@ const registerSchema = z.object({
   password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
   team: z.string().optional(),
   league: z.string().optional(),
+  isMartyrRelative: z.boolean().default(false),
+  martyrRelativeDocumentUrl: z.string().optional(),
   termsAccepted: z.boolean().refine(val => val === true, "Sözleşmeyi kabul etmelisiniz")
 }).refine((data) => {
   // Doğum yılına göre pozisyon validasyonu
@@ -139,6 +141,8 @@ export async function POST(request: NextRequest) {
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
         phone: validatedData.phone,
+        isMartyrRelative: validatedData.isMartyrRelative,
+        martyrRelativeDocumentUrl: validatedData.martyrRelativeDocumentUrl,
         role: "MEMBER",
         status: "PENDING", // Havale/EFT ödeme onayı bekleniyor
         memberProfile: {
@@ -172,12 +176,20 @@ export async function POST(request: NextRequest) {
       console.error('❌ Welcome email gönderme hatası:', error)
     })
     
+    // Şehit yakını ise direkt dashboard'a yönlendir (parent-info ve payment atla)
+    // Değilse parent-info sayfasına yönlendir
+    const redirectUrl = validatedData.isMartyrRelative 
+      ? "/member/dashboard" 
+      : "/auth/parent-info"
+    
     return NextResponse.json({
       success: true,
-      message: "Kayıt başarılı! Dashboard'a yönlendiriliyorsunuz.",
+      message: validatedData.isMartyrRelative 
+        ? "Kayıt başarılı! Dashboard'a yönlendiriliyorsunuz." 
+        : "Kayıt başarılı! Lütfen veli bilgilerini doldurun.",
       data: {
         userId: user.id,
-        redirectUrl: "/member/dashboard" // Direkt dashboard'a yönlendir
+        redirectUrl
       }
     })
     
@@ -191,9 +203,16 @@ export async function POST(request: NextRequest) {
     }
     
     console.error("Register error:", error)
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    })
+    
     return NextResponse.json({
       success: false,
-      message: "Kayıt işlemi sırasında bir hata oluştu"
+      message: error instanceof Error ? error.message : "Kayıt işlemi sırasında bir hata oluştu",
+      error: error instanceof Error ? error.stack : String(error)
     }, { status: 500 })
   } finally {
     await prisma.$disconnect()

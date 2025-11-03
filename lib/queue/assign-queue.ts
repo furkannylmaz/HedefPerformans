@@ -2,7 +2,10 @@
 // Hedef Performans - Kadro Atama Sistemi
 
 import { Job } from 'bullmq'
+import { PrismaClient } from '@prisma/client'
 import { autoAssignUser } from '../squads/assign'
+
+const prisma = new PrismaClient()
 
 // Job data interface
 export interface AssignJobData {
@@ -50,6 +53,29 @@ export async function processAssignJob(job: Job<AssignJobData>) {
   console.log(`🔄 Atama job'u başlatıldı: ${userId}`)
   
   try {
+    // Kullanıcı bilgilerini kontrol et
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        memberProfile: true
+      }
+    })
+
+    if (!user) {
+      throw new Error(`Kullanıcı bulunamadı: ${userId}`)
+    }
+
+    if (!user.memberProfile) {
+      throw new Error(`Kullanıcı profili bulunamadı: ${userId}`)
+    }
+
+    // Kullanıcının ACTIVE olması gerekiyor
+    if (user.status !== 'ACTIVE') {
+      throw new Error(`Kullanıcı aktif değil: ${userId} (status: ${user.status})`)
+    }
+
+    console.log(`✅ [ASSIGN-JOB] Kullanıcı doğrulandı: ${userId}, status: ${user.status}`)
+
     // Atama işlemini gerçekleştir
     const assignment = await autoAssignUser({
       userId,

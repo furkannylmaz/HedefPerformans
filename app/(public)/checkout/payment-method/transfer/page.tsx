@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,21 +8,46 @@ import { Button } from "@/components/ui/button"
 import { Banknote, ArrowLeft, ArrowRight, Copy, Check, FileText, Info } from "lucide-react"
 import Image from "next/image"
 
+interface BankInfo {
+  bankName: string
+  accountName: string
+  iban: string
+  accountNumber: string
+  branch: string
+  amount: string
+}
+
 export default function TransferPaymentPage() {
   const router = useRouter()
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
-
-  // Banka bilgileri (Değiştirilebilir)
-  const bankInfo = {
+  const [bankInfo, setBankInfo] = useState<BankInfo>({
     bankName: "Ziraat Bankası",
     accountName: "Hedef Performans Spor Kulübü",
     iban: "TR99 0001 0009 9900 0000 0000 00",
     accountNumber: "9900000000",
     branch: "Kadıköy Şubesi (990)",
     amount: "499.00",
-    reference: "İsim Soyisim - Telefon" // Dekonta yazılacak
-  }
+  })
+
+  // Banka bilgilerini API'den yükle
+  useEffect(() => {
+    const fetchBankInfo = async () => {
+      try {
+        const response = await fetch("/api/admin/site-settings?key=siteInfo")
+        const data = await response.json()
+        
+        if (data.success && data.data?.bankInfo) {
+          setBankInfo(data.data.bankInfo)
+        }
+      } catch (error) {
+        console.error("Bank info fetch error:", error)
+        // Hata durumunda default değerler kullanılacak
+      }
+    }
+    
+    fetchBankInfo()
+  }, [])
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)

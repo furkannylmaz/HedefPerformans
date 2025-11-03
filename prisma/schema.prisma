@@ -12,19 +12,22 @@ datasource db {
 
 // Kullanıcı tablosu - temel auth bilgileri
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String   // bcrypt hash
-  firstName String
-  lastName  String
-  phone     String?
-  role      String   @default("MEMBER") // MEMBER, ADMIN
-  status    String   @default("PENDING") // PENDING, ACTIVE, SUSPENDED
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                       String   @id @default(cuid())
+  email                    String   @unique
+  password                 String   // bcrypt hash
+  firstName                String
+  lastName                 String
+  phone                    String?
+  isMartyrRelative         Boolean  @default(false)
+  martyrRelativeDocumentUrl String?
+  role                     String   @default("MEMBER") // MEMBER, ADMIN
+  status                   String   @default("PENDING") // PENDING, ACTIVE, SUSPENDED
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 
   // İlişkiler
   memberProfile MemberProfile?
+  parentInfo    ParentInfo?
   payments      Payment[]
   videos        Video[]
   squadAssignments SquadAssignment[]
@@ -216,4 +219,35 @@ model SliderItem {
   updatedAt DateTime @updatedAt
 
   @@map("slider_items")
+}
+
+// Site ayarları (JSON içerik)
+model SiteSetting {
+  key       String   @id
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// Veli Bilgileri (Türkiye futbol federasyonu veri kayıt sistemine uygun)
+model ParentInfo {
+  id                    String   @id @default(cuid())
+  userId                 String   @unique
+  parentOccupationGroup  String?  // Veli Meslek Grubu
+  parentPhone            String?  // Veli Telefon Numarası
+  participationCity      String?  // Seçmelere Katılacağınız Şehir
+  kvkkAccepted           Boolean  @default(false) // KVKK kapsamında işlenmesini kabul ediyorum
+  infoFormAccepted       Boolean  @default(false) // Ön Bilgilendirme Formunu okudum, onaylıyorum
+  healthConsentAccepted  Boolean  @default(false) // Sağlık Onam Formunu okudum, onaylıyorum
+  salesContractAccepted  Boolean  @default(false) // Mesafeli Satış Sözleşmesini okudum, onaylıyorum
+  playedInClubBefore     Boolean? // Daha Önce Bir Kulüpte Oynadı Mı
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // İlişkiler
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("parent_infos")
 }

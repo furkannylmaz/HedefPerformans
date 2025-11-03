@@ -14,29 +14,30 @@ import {
   Filter,
   RefreshCw,
   CheckCircle,
-  Trash2
+  Trash2,
+  FileText,
+  UserCircle
 } from "lucide-react"
 import { toast } from "sonner"
-import Link from "next/link"
 import * as XLSX from 'xlsx'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
-// Quick links navigation
-function AdminQuickLinks() {
-  return (
-    <div className="mb-6 overflow-x-auto scroll-smooth">
-      <div className="flex gap-2 min-w-max">
-        <Button asChild variant="default" size="sm" className="bg-neon-green text-black hover:bg-field-green font-bold">
-          <Link href="/admin/users">Kullanıcı Yönetimi</Link>
-        </Button>
-        <Button asChild variant="outline" size="sm" className="border-neon-green text-[#111111] hover:bg-neon-green hover:text-black">
-          <Link href="/admin/squads">Kadro Yönetimi</Link>
-        </Button>
-        <Button asChild variant="outline" size="sm" className="border-neon-green text-[#111111] hover:bg-neon-green hover:text-black">
-          <Link href="/admin/sliders">Slider Yönetimi</Link>
-        </Button>
-      </div>
-    </div>
-  )
+interface ParentInfo {
+  id: string
+  parentOccupationGroup: string | null
+  parentPhone: string | null
+  participationCity: string | null
+  kvkkAccepted: boolean
+  infoFormAccepted: boolean
+  healthConsentAccepted: boolean
+  salesContractAccepted: boolean
+  playedInClubBefore: boolean | null
 }
 
 interface User {
@@ -54,6 +55,9 @@ interface User {
   paymentAmount: number
   joinDate: Date
   status: "ACTIVE" | "PENDING" | "SUSPENDED"
+  parentInfo?: ParentInfo | null
+  isMartyrRelative?: boolean
+  martyrRelativeDocumentUrl?: string | null
 }
 
 export default function AdminUsersPage() {
@@ -66,6 +70,8 @@ export default function AdminUsersPage() {
     ageRange: "",
     city: ""
   })
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [showParentInfo, setShowParentInfo] = useState(false)
 
   const loadUsers = async () => {
     setIsLoading(true)
@@ -81,10 +87,16 @@ export default function AdminUsersPage() {
       const data = await response.json()
       
       if (data.success) {
-        setUsers(data.data.users)
+        setUsers(data.data.users || [])
+      } else {
+        console.error("Users load error:", data.message || data.error)
+        toast.error(data.message || 'Kullanıcılar yüklenemedi')
+        setUsers([])
       }
     } catch (error) {
       console.error("Users load error:", error)
+      toast.error('Kullanıcılar yüklenirken bir hata oluştu')
+      setUsers([])
     } finally {
       setIsLoading(false)
     }
@@ -166,7 +178,8 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     loadUsers()
-  }, [searchTerm, filters])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, filters.position, filters.paymentStatus, filters.city, filters.ageRange])
 
   const filteredUsers = users
 
@@ -320,48 +333,46 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-turf-bg">
-      {/* Header */}
-      <div className="border-b border-turf-border bg-turf-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-[#111111] flex items-center gap-2">
-                <Users className="h-8 w-8" />
-                Kullanıcı Yönetimi
-              </h1>
-              <p className="text-[#111111]">
-                Platform üyelerini yönetin ve ödeme durumlarını takip edin.
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button onClick={handleExport} variant="outline" className="border-neon-green text-[#111111] hover:bg-neon-green hover:text-black font-bold">
-                <Download className="h-4 w-4 mr-2" />
-                Excel Export
-              </Button>
-            </div>
+    <div className="min-h-screen">
+      {/* Page Header */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-red-50 border border-red-200">
+                <Users className="h-6 w-6 text-red-600" />
+              </div>
+              Kullanıcı Yönetimi
+            </h1>
+            <p className="text-gray-600 ml-14">
+              Platform üyelerini yönetin ve ödeme durumlarını takip edin.
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button 
+              onClick={handleExport} 
+              variant="outline" 
+              className="border-red-500/50 text-red-600 hover:bg-red-50 hover:border-red-400 font-semibold"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Excel Export
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Ana İçerik */}
-      <div className="container mx-auto px-4 py-8">
-        {/* Quick Links */}
-        <div className="mb-6">
-          <AdminQuickLinks />
-        </div>
 
-        {/* Filtreler */}
-        <Card className="mb-6 bg-turf-card border-turf-border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#111111]">
-              <Filter className="h-5 w-5" />
-              Filtreler
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* Filtreler */}
+      <Card className="mb-6 bg-white border-gray-200 shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-gray-900">
+            <Filter className="h-5 w-5 text-red-600" />
+            Filtreler
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="search">Arama</Label>
                 <div className="relative">
@@ -448,133 +459,284 @@ export default function AdminUsersPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Kullanıcı Listesi */}
-        <Card className="bg-turf-card border-turf-border">
-          <CardHeader>
-            <CardTitle className="text-[#111111]">Kullanıcılar ({filteredUsers.length})</CardTitle>
-            <CardDescription className="text-[#111111]">
-              Toplam {users.length} kullanıcıdan {filteredUsers.length} tanesi gösteriliyor
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-green mx-auto"></div>
-                <p className="text-[#111111] mt-2">Kullanıcılar yükleniyor...</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-turf-border">
-                      <th className="text-left p-3 font-medium text-[#111111]">Kullanıcı</th>
-                      <th className="text-left p-3 font-medium text-[#111111]">İletişim</th>
-                      <th className="text-left p-3 font-medium text-[#111111]">Mevki</th>
-                      <th className="text-left p-3 font-medium text-[#111111]">Yedek Mevki</th>
-                      <th className="text-left p-3 font-medium text-[#111111]">Kadro</th>
-                      <th className="text-left p-3 font-medium text-[#111111]">Yaş</th>
-                      <th className="text-left p-3 font-medium text-[#111111]">Konum</th>
-                      <th className="text-left p-3 font-medium text-[#111111]">Durum</th>
-                      <th className="text-left p-3 font-medium text-[#111111]">İşlemler</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((user) => {
-                      const positionBadge = getPositionBadge(user.mainPosition)
-                      const paymentBadge = getPaymentBadge(user.paymentStatus)
-                      
-                      return (
-                        <tr key={user.id} className="border-b border-turf-border hover:bg-turf-card">
-                          <td className="p-3">
-                            <div>
-                              <div className="font-medium text-[#111111]">{user.firstName} {user.lastName}</div>
-                              <div className="text-sm text-gray-600">{user.email}</div>
-                            </div>
-                          </td>
-                          <td className="p-3">
-                            <div className="text-sm text-[#111111]">{user.phone}</div>
-                          </td>
-                          <td className="p-3">
-                            <Badge className={positionBadge.className}>
-                              {positionBadge.label}
+      {/* Kullanıcı Listesi */}
+      <Card className="bg-white border-gray-200 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-gray-900">Kullanıcılar ({filteredUsers.length})</CardTitle>
+          <CardDescription className="text-gray-600">
+            Toplam {users.length} kullanıcıdan {filteredUsers.length} tanesi gösteriliyor
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+              <p className="text-gray-600 mt-2">Kullanıcılar yükleniyor...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left p-3 font-medium text-gray-900">Kullanıcı</th>
+                    <th className="text-left p-3 font-medium text-gray-900">İletişim</th>
+                    <th className="text-left p-3 font-medium text-gray-900">Mevki</th>
+                    <th className="text-left p-3 font-medium text-gray-900">Yedek Mevki</th>
+                    <th className="text-left p-3 font-medium text-gray-900">Kadro</th>
+                    <th className="text-left p-3 font-medium text-gray-900">Yaş</th>
+                    <th className="text-left p-3 font-medium text-gray-900">Konum</th>
+                    <th className="text-left p-3 font-medium text-gray-900">Durum</th>
+                    <th className="text-left p-3 font-medium text-gray-900">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((user) => {
+                    const positionBadge = getPositionBadge(user.mainPosition)
+                    const paymentBadge = getPaymentBadge(user.paymentStatus)
+                    
+                    return (
+                      <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="p-3">
+                          <div>
+                            <div className="font-medium text-gray-900">{user.firstName} {user.lastName}</div>
+                            <div className="text-sm text-gray-600">{user.email}</div>
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <div className="text-sm text-gray-700">{user.phone}</div>
+                        </td>
+                        <td className="p-3">
+                          <Badge className={positionBadge.className}>
+                            {positionBadge.label}
+                          </Badge>
+                        </td>
+                        <td className="p-3">
+                          {user.altPosition ? (
+                            <Badge className={getPositionBadge(user.altPosition).className}>
+                              {getPositionBadge(user.altPosition).label}
                             </Badge>
-                          </td>
-                          <td className="p-3">
-                            {user.altPosition ? (
-                              <Badge className={getPositionBadge(user.altPosition).className}>
-                                {getPositionBadge(user.altPosition).label}
-                              </Badge>
-                            ) : (
-                              <span className="text-sm text-gray-500">-</span>
-                            )}
-                          </td>
-                          <td className="p-3">
-                            {user.squadInfo === '-' || user.squadInfo === 'Henüz Atanmadı' ? (
-                              <Badge variant="destructive" className="bg-error-red text-white">
-                                Atama Yok
-                              </Badge>
-                            ) : (
-                              <div className="text-sm font-medium text-[#111111]">{user.squadInfo}</div>
-                            )}
-                          </td>
-                          <td className="p-3">
-                            <div className="text-sm text-[#111111]">{user.age}</div>
-                          </td>
-                          <td className="p-3">
-                            <div className="text-sm text-[#111111]">{user.city}</div>
-                          </td>
-                          <td className="p-3">
-                            <Badge className="bg-neon-green text-black">{user.status}</Badge>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex items-center gap-2">
-                              {user.paymentStatus === "PENDING" && (
-                                <Button 
-                                  size="sm" 
-                                  variant="default" 
-                                  onClick={() => handleApprovePayment(user.id)}
-                                  className="bg-green-600 text-white hover:bg-green-700"
-                                >
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  Ödemeyi Onayla
-                                </Button>
-                              )}
-                              {user.squadInfo === '-' || user.squadInfo === 'Henüz Atanmadı' ? (
-                                <Button 
-                                  size="sm" 
-                                  variant="default" 
-                                  onClick={() => handleReassign(user.id)}
-                                  className="bg-neon-green text-black hover:bg-field-green"
-                                >
-                                  <RefreshCw className="h-3 w-3 mr-1" />
-                                  Yeniden Ata
-                                </Button>
-                              ) : null}
+                          ) : (
+                            <span className="text-sm text-gray-500">-</span>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          {user.squadInfo === '-' || user.squadInfo === 'Henüz Atanmadı' ? (
+                            <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30">
+                              Atama Yok
+                            </Badge>
+                          ) : (
+                            <div className="text-sm font-medium text-gray-700">{user.squadInfo}</div>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <div className="text-sm text-gray-700">{user.age}</div>
+                        </td>
+                        <td className="p-3">
+                          <div className="text-sm text-gray-700">{user.city}</div>
+                        </td>
+                        <td className="p-3">
+                          <Badge className="bg-red-100 text-red-700 border-red-300">
+                            {user.status}
+                          </Badge>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {user.paymentStatus === "PENDING" && (
                               <Button 
                                 size="sm" 
-                                variant="outline"
-                                onClick={() => handleDeleteUser(user.id, `${user.firstName} ${user.lastName}`)}
-                                className="border-red-500 text-red-600 hover:bg-red-50"
+                                variant="default" 
+                                onClick={() => handleApprovePayment(user.id)}
+                                className="bg-green-600 text-white hover:bg-green-700"
                               >
-                                <Trash2 className="h-3 w-3 mr-1" />
-                                Sil
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Ödemeyi Onayla
                               </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                            )}
+                            {user.squadInfo === '-' || user.squadInfo === 'Henüz Atanmadı' ? (
+                              <Button 
+                                size="sm" 
+                                variant="default" 
+                                onClick={() => handleReassign(user.id)}
+                                className="bg-red-600 text-white hover:bg-red-700"
+                              >
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Yeniden Ata
+                              </Button>
+                            ) : null}
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedUser(user)
+                                setShowParentInfo(true)
+                              }}
+                              className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                            >
+                              <UserCircle className="h-3 w-3 mr-1" />
+                              Veli Bilgileri
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleDeleteUser(user.id, `${user.firstName} ${user.lastName}`)}
+                              className="border-red-500 text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-3 w-3 mr-1" />
+                              Sil
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Veli Bilgileri Modal */}
+      <Dialog open={showParentInfo} onOpenChange={setShowParentInfo}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserCircle className="h-5 w-5 text-blue-600" />
+              Veli Bilgileri - {selectedUser?.firstName} {selectedUser?.lastName}
+            </DialogTitle>
+            <DialogDescription>
+              Türkiye futbol federasyonu veri kayıt sistemine uygun bilgiler
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="space-y-6 mt-4">
+              {/* Şehit Yakını Bilgisi */}
+              {selectedUser.isMartyrRelative && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="h-4 w-4 text-red-600" />
+                    <span className="font-semibold text-red-900">Şehit Yakını</span>
+                  </div>
+                  {selectedUser.martyrRelativeDocumentUrl && (
+                    <a
+                      href={selectedUser.martyrRelativeDocumentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-red-700 hover:underline"
+                    >
+                      Belgeyi Görüntüle
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Veli Bilgileri */}
+              {selectedUser.parentInfo ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm text-gray-600">Veli Meslek Grubu</Label>
+                      <p className="text-sm font-medium text-gray-900 mt-1">
+                        {selectedUser.parentInfo.parentOccupationGroup || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-600">Veli Telefon Numarası</Label>
+                      <p className="text-sm font-medium text-gray-900 mt-1">
+                        {selectedUser.parentInfo.parentPhone || "-"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-gray-600">Seçmelere Katılacağınız Şehir</Label>
+                    <p className="text-sm font-medium text-gray-900 mt-1">
+                      {selectedUser.parentInfo.participationCity || "-"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-gray-600">Daha Önce Bir Kulüpte Oynadı Mı</Label>
+                    <p className="text-sm font-medium text-gray-900 mt-1">
+                      {selectedUser.parentInfo.playedInClubBefore === null
+                        ? "-"
+                        : selectedUser.parentInfo.playedInClubBefore
+                        ? "Evet"
+                        : "Hayır"}
+                    </p>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <Label className="text-sm font-semibold text-gray-900 mb-3 block">
+                      Onaylar
+                    </Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle
+                          className={`h-4 w-4 ${
+                            selectedUser.parentInfo.kvkkAccepted
+                              ? "text-green-600"
+                              : "text-gray-400"
+                          }`}
+                        />
+                        <span className="text-sm">
+                          KVKK kapsamında işlenmesini kabul ediyorum
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle
+                          className={`h-4 w-4 ${
+                            selectedUser.parentInfo.infoFormAccepted
+                              ? "text-green-600"
+                              : "text-gray-400"
+                          }`}
+                        />
+                        <span className="text-sm">
+                          Ön Bilgilendirme Formunu okudum, onaylıyorum
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle
+                          className={`h-4 w-4 ${
+                            selectedUser.parentInfo.healthConsentAccepted
+                              ? "text-green-600"
+                              : "text-gray-400"
+                          }`}
+                        />
+                        <span className="text-sm">
+                          Sağlık Onam Formunu okudum, onaylıyorum
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle
+                          className={`h-4 w-4 ${
+                            selectedUser.parentInfo.salesContractAccepted
+                              ? "text-green-600"
+                              : "text-gray-400"
+                          }`}
+                        />
+                        <span className="text-sm">
+                          Mesafeli Satış Sözleşmesini okudum, onaylıyorum
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <FileText className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                  <p>Henüz veli bilgileri kaydedilmemiş</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

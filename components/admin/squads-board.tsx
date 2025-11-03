@@ -77,12 +77,16 @@ export function SquadsBoard({ ageGroupCode, template }: SquadsBoardProps) {
       const data = await response.json()
 
       if (data.success) {
-        setSquads(data.data.squads)
+        setSquads(data.data.squads || [])
       } else {
-        toast.error(data.message)
+        console.error("Squads load error:", data.message || data.error)
+        toast.error(data.message || 'Kadrolar yüklenemedi')
+        setSquads([])
       }
     } catch (error) {
+      console.error("Squads load error:", error)
       toast.error("Kadro listesi yüklenirken hata oluştu")
+      setSquads([])
     } finally {
       setIsLoading(false)
     }

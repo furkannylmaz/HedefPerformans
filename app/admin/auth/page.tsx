@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,21 +39,31 @@ export default function AdminAuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-turf-bg flex items-center justify-center p-4">
-      <Card className="max-w-md w-full bg-turf-card border-turf-border">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
+      <Card className="relative z-10 max-w-md w-full bg-white border-gray-200 shadow-xl">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neon-green">
-            <Shield className="h-6 w-6 text-black" />
+          <div className="mx-auto mb-4 flex items-center justify-center gap-3">
+            <Image
+              src="/logohedef.png"
+              alt="Hedef Performans Logo"
+              width={48}
+              height={48}
+              className="h-12 w-auto object-contain"
+            />
+            <div className="flex flex-col items-start">
+              <span className="text-xl font-bold text-gray-900">Admin Panel</span>
+              <span className="text-xs text-gray-500">Hedef Performans</span>
+            </div>
           </div>
-          <CardTitle className="text-[#111111]">Admin Girişi</CardTitle>
-          <CardDescription className="text-[#111111]">
-            Yönetim paneline erişmek için giriş yapın
+          <CardTitle className="text-2xl font-bold text-gray-900">Yönetici Girişi</CardTitle>
+          <CardDescription className="text-gray-600">
+            Admin paneline erişmek için giriş yapın
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-[#111111]">E-posta</Label>
+              <Label htmlFor="email" className="text-gray-900">E-posta</Label>
               <Input
                 id="email"
                 type="email"
@@ -60,12 +71,12 @@ export default function AdminAuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-white border-turf-border text-[#111111]"
+                className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-600 focus:ring-red-600"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-[#111111]">Şifre</Label>
+              <Label htmlFor="password" className="text-gray-900">Şifre</Label>
               <Input
                 id="password"
                 type="password"
@@ -73,14 +84,14 @@ export default function AdminAuthPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-white border-turf-border text-[#111111]"
+                className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-600 focus:ring-red-600"
               />
             </div>
 
-            <div className="bg-turf-bg p-3 rounded-lg border border-turf-border">
+            <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
               <div className="flex items-start gap-2">
-                <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5" />
-                <p className="text-xs text-[#111111]">
+                <AlertCircle className="h-4 w-4 text-red-600 mt-0.5" />
+                <p className="text-xs text-gray-700">
                   Demo: admin@hedefperformans.com / admin123
                 </p>
               </div>
@@ -88,12 +99,12 @@ export default function AdminAuthPage() {
 
             <Button 
               type="submit" 
-              className="w-full bg-neon-green text-black hover:bg-field-green font-bold"
+              className="w-full bg-red-600 text-white hover:bg-red-700 font-semibold"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   Giriş yapılıyor...
                 </>
               ) : (
@@ -109,5 +120,3 @@ export default function AdminAuthPage() {
     </div>
   )
 }
-
-

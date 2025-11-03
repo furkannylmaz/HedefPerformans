@@ -220,29 +220,27 @@ export default function MemberDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Hoş geldiniz, {userData?.user?.firstName} {userData?.user?.lastName}!
-              </h1>
-              <p className="text-muted-foreground">
-                Hesabınızı yönetin ve içeriklerinizi paylaşın.
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {/* Hesabım Butonu */}
-              <Dialog open={isAccountDialogOpen} onOpenChange={setIsAccountDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="default" className="flex items-center gap-2 border-2 border-turf-border text-[#111111] hover:bg-turf-card font-semibold px-4 py-2">
-                    <User className="h-5 w-5" />
-                    <span>Hesabım</span>
-                  </Button>
-                </DialogTrigger>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Hoş geldiniz, {userData?.user?.firstName} {userData?.user?.lastName}!
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Hesabınızı yönetin ve içeriklerinizi paylaşın.
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          {/* Hesabım Butonu */}
+          <Dialog open={isAccountDialogOpen} onOpenChange={setIsAccountDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="default" className="flex items-center gap-2 border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold px-4 py-2">
+                <User className="h-5 w-5" />
+                <span>Hesabım</span>
+              </Button>
+            </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
@@ -277,50 +275,37 @@ export default function MemberDashboard() {
                   </div>
                 </DialogContent>
               </Dialog>
-              
-              {/* Çıkış Yap Butonu */}
-              <Button 
-                variant="destructive" 
-                size="default" 
-                onClick={handleLogout}
-                className="flex items-center gap-2 font-semibold hover:bg-red-700 px-4 py-2"
-              >
-                <LogOut className="h-5 w-5" />
-                <span>Çıkış Yap</span>
-              </Button>
             </div>
-          </div>
-        </div>
       </div>
 
       {/* Ana İçerik */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Sol Kolon - İstatistikler ve Video Yükleme */}
           <div className="lg:col-span-2 space-y-6">
             {/* İstatistik Kartları */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card>
+              <Card className="bg-white border-gray-200 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Toplam İzlenme</CardTitle>
-                  <Eye className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-gray-900">Toplam İzlenme</CardTitle>
+                  <Eye className="h-4 w-4 text-gray-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold text-gray-900">{stats.totalViews.toLocaleString()}</div>
+                  <p className="text-xs text-gray-600">
                     Toplam izlenme
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-white border-gray-200 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Video Sayısı</CardTitle>
-                  <Play className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-gray-900">Video Sayısı</CardTitle>
+                  <Play className="h-4 w-4 text-gray-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.videoCount}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold text-gray-900">{stats.videoCount}</div>
+                  <p className="text-xs text-gray-600">
                     Aktif videolar
                   </p>
                 </CardContent>

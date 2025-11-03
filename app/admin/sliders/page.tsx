@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Image as ImageIcon, Plus, Edit, Trash2, Save, X, Upload } from "lucide-react"
-import Link from "next/link"
 
 // Slider tipi
 interface Slider {
@@ -186,58 +185,48 @@ export default function AdminSlidersPage() {
     resetForm()
   }
 
-  // Sol ve sağ slider'ları ayır
+  // Slider'ları tarafa göre ayır
   const leftSliders = sliders.filter(s => s.side === "LEFT")
   const rightSliders = sliders.filter(s => s.side === "RIGHT")
+  const mainSliders = sliders.filter(s => s.side === "MAIN")
+  const welcomeRightSliders = sliders.filter(s => s.side === "WELCOME_RIGHT")
+  
+  // MAIN slider'ları pozisyonlarına göre ayır
+  const mainLeftSlider = mainSliders.find(s => s.sort === 0)
+  const mainRightTopSlider = mainSliders.find(s => s.sort === 1)
+  const mainRightBottomSlider = mainSliders.find(s => s.sort === 2)
+  
+  // Welcome Right slider (tek görsel)
+  const welcomeRightSlider = welcomeRightSliders[0]
 
   return (
-    <div className="min-h-screen bg-turf-bg">
-      <div className="border-b border-turf-border bg-turf-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-[#111111] flex items-center gap-2">
-                <ImageIcon className="h-8 w-8" />
-                Slider Yönetimi
-              </h1>
-              <p className="text-[#111111]">
-                Slider görsellerini yönetin.
-              </p>
-            </div>
-            <Button
-              onClick={() => {
-                setShowAddForm(!showAddForm)
-                setEditingId(null)
-                resetForm()
-              }}
-              className="bg-neon-green text-black hover:bg-field-green"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Yeni Slider Ekle
-            </Button>
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <ImageIcon className="h-8 w-8 text-red-600" />
+            Slider Yönetimi
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Slider görsellerini yönetin.
+          </p>
         </div>
+        <Button
+          onClick={() => {
+            setShowAddForm(!showAddForm)
+            setEditingId(null)
+            resetForm()
+          }}
+          className="bg-red-600 text-white hover:bg-red-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Yeni Slider Ekle
+        </Button>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Hızlı Linkler */}
-        <div className="mb-6 overflow-x-auto scroll-smooth">
-          <div className="flex gap-2 min-w-max">
-            <Button asChild variant="outline" size="sm" className="border-neon-green text-[#111111] hover:bg-neon-green">
-              <Link href="/admin/users">Kullanıcı Yönetimi</Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="border-neon-green text-[#111111] hover:bg-neon-green">
-              <Link href="/admin/squads">Kadro Yönetimi</Link>
-            </Button>
-            <Button asChild variant="default" size="sm" className="bg-neon-green text-black hover:bg-field-green font-bold">
-              <Link href="/admin/sliders">Slider Yönetimi</Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Form - Yeni Ekleme veya Düzenleme */}
-        {(showAddForm || editingId) && (
-          <Card className="mb-6 bg-turf-card border-turf-border">
+      {/* Form - Yeni Ekleme veya Düzenleme */}
+      {(showAddForm || editingId) && (
+        <Card id="slider-form" className="mb-6 bg-white border-gray-200 shadow-sm">
             <CardHeader>
               <CardTitle>{editingId ? 'Slider Düzenle' : 'Yeni Slider Ekle'}</CardTitle>
               <CardDescription>
@@ -256,20 +245,37 @@ export default function AdminSlidersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="LEFT">Sol</SelectItem>
-                      <SelectItem value="RIGHT">Sağ</SelectItem>
+                      <SelectItem value="LEFT">Sol (Auth Sayfası)</SelectItem>
+                      <SelectItem value="RIGHT">Sağ (Auth Sayfası)</SelectItem>
+                      <SelectItem value="MAIN">Ana Sayfa Banner</SelectItem>
+                      <SelectItem value="WELCOME_RIGHT">Welcome Sağ Taraf Fotoğraf</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Sıralama</Label>
-                  <Input
-                    type="number"
-                    value={formData.sort}
-                    onChange={(e) => setFormData({ ...formData, sort: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label>
+                  Sıralama
+                  {formData.side === "MAIN" && (
+                    <span className="text-xs text-gray-500 block mt-1">
+                      0: Sol büyük bölüm | 1: Sağ üst | 2: Sağ alt
+                    </span>
+                  )}
+                  {formData.side === "WELCOME_RIGHT" && (
+                    <span className="text-xs text-gray-500 block mt-1">
+                      Tek görsel için 0 kullanın
+                    </span>
+                  )}
+                </Label>
+                <Input
+                  type="number"
+                  value={formData.sort}
+                  onChange={(e) => setFormData({ ...formData, sort: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={formData.side === "MAIN" ? 2 : undefined}
+                  disabled={formData.side === "WELCOME_RIGHT"}
+                />
+              </div>
               </div>
 
               <div className="space-y-2">
@@ -324,14 +330,16 @@ export default function AdminSlidersPage() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label>Link URL (Opsiyonel)</Label>
-                <Input
-                  value={formData.linkUrl}
-                  onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
-                  placeholder="https://example.com"
-                />
-              </div>
+              {formData.side !== "WELCOME_RIGHT" && (
+                <div className="space-y-2">
+                  <Label>Link URL (Opsiyonel)</Label>
+                  <Input
+                    value={formData.linkUrl}
+                    onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
+                    placeholder="https://example.com"
+                  />
+                </div>
+              )}
 
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -345,7 +353,7 @@ export default function AdminSlidersPage() {
               <div className="flex gap-2">
                 <Button
                   onClick={() => editingId ? handleUpdate(editingId) : handleAdd()}
-                  className="bg-neon-green text-black hover:bg-field-green"
+                  className="bg-red-600 text-white hover:bg-red-700"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {editingId ? 'Güncelle' : 'Kaydet'}
@@ -366,7 +374,7 @@ export default function AdminSlidersPage() {
         )}
 
         {/* Sol Slider'lar */}
-        <Card className="mb-6 bg-turf-card border-turf-border">
+        <Card className="mb-6 bg-white border-gray-200 shadow-sm">
           <CardHeader>
             <CardTitle>Sol Slider ({leftSliders.length})</CardTitle>
             <CardDescription>Auth sayfasında solda görünecek slider'lar</CardDescription>
@@ -377,7 +385,7 @@ export default function AdminSlidersPage() {
             ) : leftSliders.length > 0 ? (
               <div className="space-y-4">
                 {leftSliders.map((slider) => (
-                  <div key={slider.id} className="flex items-center gap-4 p-4 border rounded-lg bg-turf-bg">
+                  <div key={slider.id} className="flex items-center gap-4 p-4 border rounded-lg bg-gray-50">
                     <img src={slider.imageUrl} alt={slider.title || 'Slider'} className="w-32 h-20 object-cover rounded" />
                     <div className="flex-1">
                       <h3 className="font-bold text-[#111111]">{slider.title || 'Başlıksız'}</h3>
@@ -412,7 +420,7 @@ export default function AdminSlidersPage() {
         </Card>
 
         {/* Sağ Slider'lar */}
-        <Card className="bg-turf-card border-turf-border">
+        <Card className="mb-6 bg-white border-gray-200 shadow-sm">
           <CardHeader>
             <CardTitle>Sağ Slider ({rightSliders.length})</CardTitle>
             <CardDescription>Auth sayfasında sağda görünecek slider'lar</CardDescription>
@@ -423,7 +431,7 @@ export default function AdminSlidersPage() {
             ) : rightSliders.length > 0 ? (
               <div className="space-y-4">
                 {rightSliders.map((slider) => (
-                  <div key={slider.id} className="flex items-center gap-4 p-4 border rounded-lg bg-turf-bg">
+                  <div key={slider.id} className="flex items-center gap-4 p-4 border rounded-lg bg-gray-50">
                     <img src={slider.imageUrl} alt={slider.title || 'Slider'} className="w-32 h-20 object-cover rounded" />
                     <div className="flex-1">
                       <h3 className="font-bold text-[#111111]">{slider.title || 'Başlıksız'}</h3>
@@ -456,7 +464,229 @@ export default function AdminSlidersPage() {
             )}
           </CardContent>
         </Card>
-      </div>
+
+        {/* Ana Sayfa Banner'lar */}
+        <Card className="mb-6 bg-white border-gray-200 shadow-sm">
+          <CardHeader>
+            <CardTitle>Ana Sayfa Banner ({mainSliders.length}/3)</CardTitle>
+            <CardDescription>Ana sayfanın üst kısmında görünecek 3 bölümlü banner sistemi</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <p>Yükleniyor...</p>
+            ) : (
+              <div className="space-y-4">
+                {/* Sol Büyük Bölüm */}
+                <div className="p-4 border rounded-lg bg-gray-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-gray-900">Sol Büyük Bölüm (sort: 0)</h4>
+                    {mainLeftSlider ? (
+                      <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">Dolu</span>
+                    ) : (
+                      <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded">Boş</span>
+                    )}
+                  </div>
+                  {mainLeftSlider ? (
+                    <div className="flex items-center gap-4">
+                      <img src={mainLeftSlider.imageUrl} alt={mainLeftSlider.title || 'Slider'} className="w-32 h-20 object-cover rounded" />
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900">{mainLeftSlider.title || 'Başlıksız'}</h3>
+                        <p className="text-sm text-muted-foreground">{mainLeftSlider.isActive ? 'Aktif' : 'Pasif'}</p>
+                        {mainLeftSlider.linkUrl && (
+                          <p className="text-xs text-blue-500">Link: {mainLeftSlider.linkUrl}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => startEdit(mainLeftSlider)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDelete(mainLeftSlider.id)}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Henüz eklenmemiş</p>
+                  )}
+                </div>
+
+                {/* Sağ Üst Bölüm */}
+                <div className="p-4 border rounded-lg bg-gray-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-gray-900">Sağ Üst Bölüm (sort: 1)</h4>
+                    {mainRightTopSlider ? (
+                      <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">Dolu</span>
+                    ) : (
+                      <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded">Boş</span>
+                    )}
+                  </div>
+                  {mainRightTopSlider ? (
+                    <div className="flex items-center gap-4">
+                      <img src={mainRightTopSlider.imageUrl} alt={mainRightTopSlider.title || 'Slider'} className="w-32 h-20 object-cover rounded" />
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900">{mainRightTopSlider.title || 'Başlıksız'}</h3>
+                        <p className="text-sm text-muted-foreground">{mainRightTopSlider.isActive ? 'Aktif' : 'Pasif'}</p>
+                        {mainRightTopSlider.linkUrl && (
+                          <p className="text-xs text-blue-500">Link: {mainRightTopSlider.linkUrl}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => startEdit(mainRightTopSlider)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDelete(mainRightTopSlider.id)}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Henüz eklenmemiş</p>
+                  )}
+                </div>
+
+                {/* Sağ Alt Bölüm */}
+                <div className="p-4 border rounded-lg bg-gray-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-gray-900">Sağ Alt Bölüm (sort: 2)</h4>
+                    {mainRightBottomSlider ? (
+                      <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">Dolu</span>
+                    ) : (
+                      <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded">Boş</span>
+                    )}
+                  </div>
+                  {mainRightBottomSlider ? (
+                    <div className="flex items-center gap-4">
+                      <img src={mainRightBottomSlider.imageUrl} alt={mainRightBottomSlider.title || 'Slider'} className="w-32 h-20 object-cover rounded" />
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900">{mainRightBottomSlider.title || 'Başlıksız'}</h3>
+                        <p className="text-sm text-muted-foreground">{mainRightBottomSlider.isActive ? 'Aktif' : 'Pasif'}</p>
+                        {mainRightBottomSlider.linkUrl && (
+                          <p className="text-xs text-blue-500">Link: {mainRightBottomSlider.linkUrl}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => startEdit(mainRightBottomSlider)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDelete(mainRightBottomSlider.id)}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Henüz eklenmemiş</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Welcome Sağ Taraf Fotoğraf */}
+        <Card className="bg-white border-gray-200 shadow-sm">
+          <CardHeader>
+            <CardTitle>Welcome Sağ Taraf Fotoğraf</CardTitle>
+            <CardDescription>Ana sayfa Hero bölümünün sağ tarafında görünecek görsel</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <p>Yükleniyor...</p>
+            ) : welcomeRightSlider ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 p-4 border rounded-lg bg-gray-50">
+                  <img 
+                    src={welcomeRightSlider.imageUrl} 
+                    alt={welcomeRightSlider.title || 'Welcome Right'} 
+                    className="w-32 h-32 object-contain rounded border bg-white p-2" 
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900">
+                      {welcomeRightSlider.title || 'Welcome Sağ Taraf Fotoğraf'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {welcomeRightSlider.isActive ? 'Aktif' : 'Pasif'}
+                    </p>
+                    {welcomeRightSlider.linkUrl && (
+                      <p className="text-xs text-blue-500 mt-1">Link: {welcomeRightSlider.linkUrl}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => startEdit(welcomeRightSlider)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Düzenle
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(welcomeRightSlider.id)}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Sil
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 border-2 border-dashed rounded-lg text-center">
+                <ImageIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p className="text-muted-foreground mb-4">Henüz Welcome sağ taraf fotoğrafı eklenmemiş</p>
+                <Button
+                  onClick={() => {
+                    setFormData({
+                      side: "WELCOME_RIGHT",
+                      title: "",
+                      imageUrl: "",
+                      linkUrl: "",
+                      sort: 0,
+                      isActive: true
+                    })
+                    setEditingId(null)
+                    setShowAddForm(true)
+                    // Form açıldığında forma scroll yap
+                    setTimeout(() => {
+                      const formElement = document.getElementById('slider-form')
+                      if (formElement) {
+                        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      }
+                    }, 100)
+                  }}
+                  className="bg-red-600 text-white hover:bg-red-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Fotoğraf Ekle
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
     </div>
   )
 }

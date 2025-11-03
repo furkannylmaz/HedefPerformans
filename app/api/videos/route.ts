@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,7 +36,7 @@ export async function GET(request: NextRequest) {
       user: {
         firstName: video.user.firstName,
         lastName: video.user.lastName,
-        mainPosition: video.user.memberProfile?.mainPosition || 'N/A'
+        mainPosition: video.user.memberProfile?.mainPositionKey || video.user.memberProfile?.mainPosition || 'N/A'
       }
     }))
     
@@ -72,9 +70,8 @@ export async function GET(request: NextRequest) {
     console.error("Videos fetch error:", error)
     return NextResponse.json({
       success: false,
-      message: "Videolar yüklenirken bir hata oluştu"
+      message: "Videolar yüklenirken bir hata oluştu",
+      error: error instanceof Error ? error.message : 'Bilinmeyen hata'
     }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }

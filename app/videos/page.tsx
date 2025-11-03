@@ -126,28 +126,20 @@ export default function VideosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-                <Play className="h-8 w-8" />
-                Üye Videoları
-              </h1>
-              <p className="text-muted-foreground">
-                Platform üyelerinin paylaştığı eğitim videolarını izleyin.
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
+          <Play className="h-8 w-8 text-red-600" />
+          Üye Videoları
+        </h1>
+        <p className="text-gray-600">
+          Platform üyelerinin paylaştığı eğitim videolarını izleyin.
+        </p>
       </div>
 
-      {/* Ana İçerik */}
-      <div className="container mx-auto px-4 py-8">
-        {/* Filtreler */}
-        <Card className="mb-6">
+      {/* Filtreler */}
+      <Card className="bg-white border-gray-200 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Filter className="h-5 w-5" />
@@ -159,7 +151,7 @@ export default function VideosPage() {
               <div className="space-y-2">
                 <label htmlFor="search" className="text-sm font-medium">Arama</label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="search"
                     placeholder="Video başlığı, açıklama veya üye adı..."
@@ -214,67 +206,66 @@ export default function VideosPage() {
           </CardContent>
         </Card>
 
-        {/* Video Listesi */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Videolar ({sortedVideos.length})</CardTitle>
-            <CardDescription>
-              Toplam {videos.length} videodan {sortedVideos.length} tanesi gösteriliyor
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <VideoCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : sortedVideos.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedVideos.map((video) => {
-                  const positionBadge = getPositionBadge(video.user.mainPosition)
-                  
-                  return (
-                    <VideoCard
-                      key={video.id}
-                      video={{
-                        id: video.id,
-                        title: video.title,
-                        description: video.description,
-                        thumbnailUrl: video.thumbnailUrl,
-                        videoUrl: video.videoUrl,
-                        duration: video.duration,
-                        viewCount: video.viewCount,
-                        quality: video.quality,
-                        createdAt: video.createdAt,
-                        user: {
-                          firstName: video.user.firstName,
-                          lastName: video.user.lastName,
-                          mainPosition: video.user.mainPosition
-                        }
-                      }}
-                      showUserInfo={true}
-                    />
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Play className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  {searchTerm || filters.position ? "Video bulunamadı" : "Henüz video yok"}
-                </h3>
-                <p className="text-muted-foreground">
-                  {searchTerm || filters.position 
-                    ? "Arama kriterlerinize uygun video bulunamadı. Filtreleri değiştirmeyi deneyin."
-                    : "Platform üyeleri henüz video paylaşmamış."
-                  }
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* Video Listesi */}
+      <Card className="bg-white border-gray-200 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-gray-900">Videolar ({sortedVideos.length})</CardTitle>
+          <CardDescription className="text-gray-600">
+            Toplam {videos.length} videodan {sortedVideos.length} tanesi gösteriliyor
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <VideoCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : sortedVideos.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedVideos.map((video) => {
+                const positionBadge = getPositionBadge(video.user.mainPosition)
+                
+                return (
+                  <VideoCard
+                    key={video.id}
+                    video={{
+                      id: video.id,
+                      title: video.title,
+                      description: video.description,
+                      thumbnailUrl: video.thumbnailUrl,
+                      videoUrl: video.videoUrl,
+                      duration: video.duration,
+                      viewCount: video.viewCount,
+                      quality: video.quality,
+                      createdAt: video.createdAt,
+                      user: {
+                        firstName: video.user.firstName,
+                        lastName: video.user.lastName,
+                        mainPosition: video.user.mainPosition
+                      }
+                    }}
+                    showUserInfo={true}
+                  />
+                )
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Play className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {searchTerm || filters.position ? "Video bulunamadı" : "Henüz video yok"}
+              </h3>
+              <p className="text-gray-600">
+                {searchTerm || filters.position 
+                  ? "Arama kriterlerinize uygun video bulunamadı. Filtreleri değiştirmeyi deneyin."
+                  : "Platform üyeleri henüz video paylaşmamış."
+                }
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

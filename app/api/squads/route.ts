@@ -2,10 +2,8 @@
 // Hedef Performans - Kadro Atama Sistemi
 
 import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { getPositionsForTemplate } from '@/lib/squads/positions'
-
-const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
@@ -120,9 +118,8 @@ export async function GET(request: NextRequest) {
     console.error("Kadro listesi hatası:", error)
     return NextResponse.json({
       success: false,
-      message: "Kadro listesi yüklenirken bir hata oluştu"
+      message: "Kadro listesi yüklenirken bir hata oluştu",
+      error: error instanceof Error ? error.message : 'Bilinmeyen hata'
     }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }

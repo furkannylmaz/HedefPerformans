@@ -36,10 +36,10 @@ export function VideoCard({
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleVideoClick = () => {
-    if (video.videoUrl && !video.videoUrl.startsWith('temp-')) {
+    if (video.videoUrl && video.videoUrl.trim() !== '' && !video.videoUrl.startsWith('temp-')) {
       setIsModalOpen(true)
     } else {
-      alert('Video henüz hazır değil. MinIO entegrasyonu sonrası aktif olacak.')
+      alert('Video henüz hazır değil. Video URL\'i mevcut değil.')
     }
   }
   const formatDuration = (seconds?: number) => {

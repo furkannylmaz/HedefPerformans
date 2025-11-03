@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,9 +19,9 @@ export async function GET(request: NextRequest) {
     
     if (search) {
       where.OR = [
-        { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } }
+        { firstName: { contains: search } },
+        { lastName: { contains: search } },
+        { email: { contains: search } }
       ]
     }
 
@@ -36,7 +34,7 @@ export async function GET(request: NextRequest) {
     if (city) {
       where.memberProfile = {
         ...where.memberProfile,
-        city: { contains: city, mode: 'insensitive' }
+        city: { contains: city }
       }
     }
 
@@ -52,11 +50,23 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Ödeme durumu filtresi
+    if (paymentStatus) {
+      if (paymentStatus === 'PAID') {
+        where.status = 'ACTIVE'
+      } else if (paymentStatus === 'PENDING') {
+        where.status = 'PENDING'
+      } else if (paymentStatus === 'FAILED') {
+        where.status = 'SUSPENDED'
+      }
+    }
+
     // Kullanıcıları getir
     const users = await prisma.user.findMany({
       where,
       include: {
         memberProfile: true,
+        parentInfo: true,
         squadAssignments: {
           include: {
             squad: true
@@ -97,7 +107,10 @@ export async function GET(request: NextRequest) {
         paymentStatus: user.status === 'PAID' ? 'PAID' : 'PENDING', // Ödeme entegrasyonu yok - direkt user.status kullan
         paymentAmount: 0, // Ödeme entegrasyonu yok
         joinDate: user.createdAt,
-        status: user.status
+        status: user.status,
+        parentInfo: user.parentInfo,
+        isMartyrRelative: user.isMartyrRelative,
+        martyrRelativeDocumentUrl: user.martyrRelativeDocumentUrl
       }
     })
 
@@ -119,9 +132,8 @@ export async function GET(request: NextRequest) {
     console.error("Users list error:", error)
     return NextResponse.json({
       success: false,
-      message: "Kullanıcı listesi alınırken hata oluştu"
+      message: "Kullanıcı listesi alınırken hata oluştu",
+      error: error instanceof Error ? error.message : 'Bilinmeyen hata'
     }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }

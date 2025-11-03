@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import { Queue } from 'bullmq'
 import { assignQueueName } from '@/lib/queue/names'
 import { connection } from '@/lib/queue/connection'
+import { autoAssignUser } from '@/lib/squads/assign'
 
 const prisma = new PrismaClient()
 
@@ -46,10 +47,10 @@ export async function POST(request: NextRequest) {
 
     // Transaction ile durumu güncelle
     await prisma.$transaction(async (tx) => {
-      // User status'ü PAID yap
+      // User status'ü ACTIVE yap - ödeme onaylandığında kullanıcı aktif olmalı
       await tx.user.update({
         where: { id: userId },
-        data: { status: 'PAID' }
+        data: { status: 'ACTIVE' }
       })
 
       // Payment durumunu güncelle
@@ -75,71 +76,110 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Kadro ataması için background job başlat
+    // Kadro ataması - Direkt olarak yap (synchronous)
     const assignEnabled = process.env.ASSIGN_ENABLED !== 'false'
     
     console.log(`🔍 [APPROVE-PAYMENT] Debug: userId=${userId}, birthYear=${user.memberProfile.birthYear}`)
     console.log(`🔍 [APPROVE-PAYMENT] Debug: mainPositionKey=${user.memberProfile.mainPositionKey}, altPositionKey=${user.memberProfile.altPositionKey}`)
     console.log(`🔍 [APPROVE-PAYMENT] Debug: ASSIGN_ENABLED=${assignEnabled}`)
     
+    let assignmentResult = null
+    let assignmentError = null
+    const { birthYear, mainPositionKey, altPositionKey } = user.memberProfile
+    
     if (!assignEnabled) {
       console.log(`🔴 ASSIGN_PAUSED: Kadro atama devre dışı - userId: ${userId}`)
     } else {
       try {
-        const { birthYear, mainPositionKey, altPositionKey } = user.memberProfile
         
-        // Yaş grubu ve şablon belirleme
-        const ageGroupCode = `U${birthYear}`
-        const template = birthYear >= 2014 && birthYear <= 2018 ? '7+1' : '10+1'
+        console.log(`🔄 [APPROVE-PAYMENT] Kadro ataması başlatılıyor...`)
         
-        console.log(`🔍 [APPROVE-PAYMENT] Computed: ageGroupCode=${ageGroupCode}, template=${template}`)
-        
-        // Queue oluştur
-        const queueName = assignQueueName(ageGroupCode, template)
-        console.log(`🔍 [APPROVE-PAYMENT] Queue name: ${queueName}`)
-        const queue = new Queue(queueName, { connection })
-        
-        // Job data
-        const jobData = {
+        // Direkt olarak atama yap
+        assignmentResult = await autoAssignUser({
           userId: user.id,
           birthYear,
           mainPositionKey,
           altPositionKey: altPositionKey || undefined
-        }
-        
-        console.log(`🔍 [APPROVE-PAYMENT] Job data:`, JSON.stringify(jobData))
-        
-        // Job ekle
-        const job = await queue.add('assign-user', jobData, {
-          jobId: `assign-${user.id}-${Date.now()}`,
-          removeOnComplete: 100,
-          removeOnFail: 50,
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-            delay: 2000,
-          },
         })
         
-        console.log(`✅ [APPROVE-PAYMENT] Kadro atama job'u başlatıldı: ${userId} → ${queueName}, jobId=${job.id}`)
-        
-        // Queue'yu kapat
-        await queue.close()
+        console.log(`✅ [APPROVE-PAYMENT] Kadro ataması başarılı: ${userId} → ${assignmentResult.squadId}, pozisyon: ${assignmentResult.positionKey}, numara: ${assignmentResult.number}`)
         
       } catch (error: any) {
-        console.error('❌ [APPROVE-PAYMENT] Kadro atama job hatası:', error)
+        assignmentError = error
+        console.error('❌ [APPROVE-PAYMENT] Kadro atama hatası:', error.message)
         console.error('❌ Error stack:', error.stack)
-        // Job hatası olsa bile ödeme onayı devam etsin
+        
+        // Eğer kullanıcı zaten atanmışsa, bu bir hata değil
+        if (error.message?.includes('USER_ALREADY_ASSIGNED') || error.message?.includes('zaten')) {
+          console.log(`ℹ️ [APPROVE-PAYMENT] Kullanıcı zaten atanmış, bu normal`)
+          // Kullanıcının mevcut atamasını bul
+          const existingAssignment = await prisma.squadAssignment.findFirst({
+            where: { userId: user.id },
+            include: { squad: true }
+          })
+          if (existingAssignment) {
+            assignmentResult = existingAssignment
+          }
+        } else {
+          // Diğer hatalar için queue'ya ekle (yedek olarak)
+          try {
+            const ageGroupCode = `U${birthYear}`
+            const template = birthYear >= 2014 && birthYear <= 2018 ? '7+1' : '10+1'
+            
+            const queueName = assignQueueName(ageGroupCode, template)
+            const queue = new Queue(queueName, { connection })
+            
+            const jobData = {
+              userId: user.id,
+              birthYear,
+              mainPositionKey,
+              altPositionKey: altPositionKey || undefined
+            }
+            
+            const job = await queue.add('assign-user', jobData, {
+              jobId: `assign-${user.id}-${Date.now()}`,
+              removeOnComplete: 100,
+              removeOnFail: 50,
+              attempts: 3,
+              backoff: {
+                type: 'exponential',
+                delay: 2000,
+              },
+            })
+            
+            console.log(`⚠️ [APPROVE-PAYMENT] Direkt atama başarısız, queue'ya eklendi: ${userId} → ${queueName}, jobId=${job.id}`)
+            
+            await queue.close()
+          } catch (queueError: any) {
+            console.error('❌ [APPROVE-PAYMENT] Queue\'ya ekleme hatası:', queueError)
+          }
+        }
       }
     }
 
-    // Prisma'yı kapat - transaction tamamlandı
+    // Prisma'yı kapat
     await prisma.$disconnect()
+    
     console.log(`✅ [APPROVE-PAYMENT] Response gönderiliyor...`)
+
+    // Response mesajı
+    let message = "Ödeme onaylandı"
+    if (assignmentResult) {
+      message += " ve kadro ataması yapıldı"
+    } else if (assignmentError && assignmentError.message?.includes('USER_ALREADY_ASSIGNED')) {
+      message += " (kullanıcı zaten kadroya atanmış)"
+    } else if (assignEnabled) {
+      message += " ve kadro ataması queue'ya eklendi"
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Ödeme onaylandı ve kadro ataması başlatıldı"
+      message,
+      assignment: assignmentResult ? {
+        squadId: assignmentResult.squadId,
+        positionKey: assignmentResult.positionKey,
+        number: assignmentResult.number
+      } : null
     })
 
   } catch (error) {
@@ -151,4 +191,3 @@ export async function POST(request: NextRequest) {
     }, { status: 500 })
   }
 }
-
