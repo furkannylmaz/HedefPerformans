@@ -111,7 +111,7 @@ export async function createNewSquadInstance(
 /**
  * Kullanıcıyı slota atama (DB transaction)
  */
-export async function assignTx(params: AssignSlotParams) {
+export async function assignUserToSlotTx(params: AssignSlotParams) {
   return await prisma.$transaction(async (tx) => {
     // Squad bilgisini al
     const squad = await tx.squad.findUnique({
@@ -171,6 +171,13 @@ export async function assignTx(params: AssignSlotParams) {
       throw error
     }
   })
+}
+
+/**
+ * Kullanıcıyı slota atama (DB transaction) - Alias
+ */
+export async function assignTx(params: AssignSlotParams) {
+  return assignUserToSlotTx(params)
 }
 
 /**
