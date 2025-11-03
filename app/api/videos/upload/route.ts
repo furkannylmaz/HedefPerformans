@@ -110,9 +110,8 @@ export async function POST(request: NextRequest) {
     
     // Dosyayı MinIO'ya yükle
     const buffer = Buffer.from(await videoFile.arrayBuffer())
-    await minioClient.putObject(BUCKET_NAME, videoFileName, buffer, {
-      'Content-Type': videoFile.type,
-      'Content-Length': videoFile.size.toString()
+    await minioClient.putObject(BUCKET_NAME, videoFileName, buffer, buffer.length, {
+      'Content-Type': videoFile.type
     })
     
     // Video kaydını veritabanına ekle
