@@ -1,4 +1,5 @@
-// Hedef Performans - Veritabanı Şeması (SQLite)
+// Hedef Performans - Veritabanı Şeması
+// Production: PostgreSQL, Development: SQLite (opsiyonel)
 // Futbol sporcularının ücretli kayıt olduğu platform
 
 generator client {
@@ -6,8 +7,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Kullanıcı tablosu - temel auth bilgileri
