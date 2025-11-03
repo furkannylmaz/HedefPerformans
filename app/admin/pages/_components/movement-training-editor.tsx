@@ -140,6 +140,18 @@ export function MovementTrainingPageEditor() {
     }));
   };
 
+  const updateService = (
+    index: number,
+    field: string,
+    value: string | number
+  ) => {
+    setContent((prev: any) => {
+      const next = [...prev.services];
+      next[index] = { ...next[index], [field]: value };
+      return { ...prev, services: next };
+    });
+  };
+
   const updateSection = (
     index: number,
     field: keyof MovementTrainingPageContent["sections"][0],
