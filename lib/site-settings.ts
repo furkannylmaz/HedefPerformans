@@ -1,11 +1,10 @@
 import { prisma } from '@/lib/prisma'
 import {
   HomepageContent,
-  defaultHomepageContent,
   mergeHomepageContent,
 } from '@/lib/homepage-content'
 import type { SiteInfo } from '@/lib/site-info'
-import { mergeSiteInfo, defaultSiteInfo } from '@/lib/site-info'
+import { mergeSiteInfo } from '@/lib/site-info'
 import {
   ServicesPageContent,
   defaultServicesPageContent,
@@ -18,7 +17,6 @@ import {
   ContactPageContent,
   defaultContactPageContent,
   mergePageContent,
-  PageContentKey,
 } from '@/lib/pages-content'
 
 export type { SiteInfo, SiteInfoSocials } from '@/lib/site-info'
@@ -103,7 +101,10 @@ export interface SliderItem {
 }
 
 export async function getBanners(side?: 'LEFT' | 'RIGHT' | 'MAIN' | 'WELCOME_RIGHT'): Promise<SliderItem[]> {
-  const where: any = {
+  const where: {
+    isActive: boolean
+    side?: string
+  } = {
     isActive: true,
   }
 

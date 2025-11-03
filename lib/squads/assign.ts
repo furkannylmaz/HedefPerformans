@@ -70,9 +70,12 @@ export async function listActiveSquads(ageGroupCode: string, template: TemplateT
 /**
  * Slot boş mu kontrol et
  */
-export function slotAvailable(squad: any, positionKey: string): boolean {
+export function slotAvailable(
+  squad: { assignments: Array<{ positionKey: string }> },
+  positionKey: string
+): boolean {
   const existingAssignment = squad.assignments.find(
-    (assignment: any) => assignment.positionKey === positionKey
+    (assignment) => assignment.positionKey === positionKey
   )
   return !existingAssignment
 }
@@ -153,23 +156,26 @@ export async function assignUserToSlotTx(params: AssignSlotParams) {
 
       console.log(`✅ [ASSIGN-TX] Assignment oluşturuldu: squadId=${params.squadId}, userId=${params.userId}`)
       return assignment
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`❌ [ASSIGN-TX] Assignment oluşturma hatası:`, error)
-      if (error.code === 'P2002') {
-        if (error.meta?.target?.includes('squadId') && error.meta?.target?.includes('number')) {
-          throw new Error('SLOT_OCCUPIED')
+      if (error && typeof error === 'object' && 'code' in error) {
+        const prismaError = error as { code: string; meta?: { target?: string[] } }
+        if (prismaError.code === 'P2002') {
+          if (prismaError.meta?.target?.includes('squadId') && prismaError.meta?.target?.includes('number')) {
+            throw new Error('SLOT_OCCUPIED')
+          }
+          if (prismaError.meta?.target?.includes('userId') && prismaError.meta?.target?.includes('ageGroupCode')) {
+            throw new Error('USER_ALREADY_ASSIGNED')
+          }
+          if (prismaError.meta?.target?.includes('userId') && prismaError.meta?.target?.includes('squadId')) {
+            throw new Error('USER_ALREADY_IN_SQUAD')
+          }
         }
-        if (error.meta?.target?.includes('userId') && error.meta?.target?.includes('ageGroupCode')) {
-          throw new Error('USER_ALREADY_ASSIGNED')
+        // Foreign key constraint hatası için özel mesaj
+        if (prismaError.code === 'P2003') {
+          console.error(`❌ [ASSIGN-TX] Foreign key constraint hatası:`, prismaError.meta)
+          throw new Error(`Foreign key constraint: ${JSON.stringify(prismaError.meta)}`)
         }
-        if (error.meta?.target?.includes('userId') && error.meta?.target?.includes('squadId')) {
-          throw new Error('USER_ALREADY_IN_SQUAD')
-        }
-      }
-      // Foreign key constraint hatası için özel mesaj
-      if (error.code === 'P2003') {
-        console.error(`❌ [ASSIGN-TX] Foreign key constraint hatası:`, error.meta)
-        throw new Error(`Foreign key constraint: ${JSON.stringify(error.meta)}`)
       }
       throw error
     }
@@ -267,8 +273,8 @@ export async function autoAssignUser(params: AssignUserParams) {
 
         console.log(`[ASSIGN-DEBUG] DECISION: ${JSON.stringify({ squad: squad.name, slotNumber: mainSlotNumber, reason: 'MAIN' })}`)
         return assignment
-      } catch (error: any) {
-        if (error.message === 'SLOT_OCCUPIED') {
+      } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'SLOT_OCCUPIED') {
           continue
         }
         throw error
@@ -297,8 +303,8 @@ export async function autoAssignUser(params: AssignUserParams) {
 
           console.log(`[ASSIGN-DEBUG] DECISION: ${JSON.stringify({ squad: squad.name, slotNumber: altSlotNumber, reason: 'ALT' })}`)
           return assignment
-        } catch (error: any) {
-          if (error.message === 'SLOT_OCCUPIED') {
+        } catch (error: unknown) {
+          if (error instanceof Error && error.message === 'SLOT_OCCUPIED') {
             continue
           }
           throw error
