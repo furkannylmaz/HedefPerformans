@@ -35,7 +35,7 @@ export function SiteHeader() {
           </Link>
 
           {/* Desktop Navigation - Orta kısım */}
-          <nav className=" lg:flex items-center gap-1 flex-1 justify-center mx-4">
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center mx-4">
             {navLinks.map((link) => (
               <Button
                 key={link.href}
@@ -50,7 +50,7 @@ export function SiteHeader() {
           </nav>
 
           {/* Desktop Auth Buttons - Sağ taraf */}
-          <div className=" lg:flex items-center gap-3 flex-shrink-0">
+          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
             <Button
               asChild
               variant="ghost"
@@ -78,7 +78,7 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -91,7 +91,7 @@ export function SiteHeader() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 py-4 space-y-2">
+          <div className="md:hidden border-t border-gray-200 py-4 space-y-2">
             {navLinks.map((link) => (
               <Button
                 key={link.href}
