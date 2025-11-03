@@ -1,9 +1,11 @@
 // BullMQ Job Processor - Kadro Atama
 // Hedef Performans - Kadro Atama Sistemi
 
-import { Job } from 'bullmq'
+import { Job, Queue } from 'bullmq'
 import { PrismaClient } from '@prisma/client'
 import { autoAssignUser } from '../squads/assign'
+import { assignQueueName } from './names'
+import { connection } from './connection'
 
 const prisma = new PrismaClient()
 
@@ -25,6 +27,40 @@ interface VersionStamp {
 // Global type tanımı
 declare global {
   var VERSION_STAMP: VersionStamp | undefined
+}
+
+/**
+ * Job ekleme fonksiyonu
+ * Yaş grubuna ve şablona göre uygun queue'ya job ekler
+ */
+export async function enqueueAssignJob(data: AssignJobData): Promise<void> {
+  const { birthYear } = data
+  
+  // Yaş grubu ve şablon belirleme
+  const ageGroupCode = `U${birthYear}`
+  const template: '7+1' | '10+1' = birthYear >= 2014 && birthYear <= 2018 ? '7+1' : '10+1'
+  
+  const queueName = assignQueueName(ageGroupCode, template)
+  const queue = new Queue(queueName, { connection })
+  
+  try {
+    await queue.add('assign-user', data, {
+      jobId: `assign-${data.userId}-${Date.now()}`, // Unique job ID
+      removeOnComplete: 100,
+      removeOnFail: 50,
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 2000,
+      },
+    })
+    console.log(`Atama job'u eklendi: ${data.userId} → ${ageGroupCode} ${template}`)
+  } catch (error) {
+    console.error('Job ekleme hatası:', error)
+    throw error
+  } finally {
+    await queue.close()
+  }
 }
 
 /**
