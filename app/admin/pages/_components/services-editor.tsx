@@ -126,7 +126,7 @@ export function ServicesPageEditor() {
   const updateService = (
     index: number,
     field: keyof ServicesPageContent["services"][0],
-    value: string | string[],
+    value: string | string[] | number,
   ) => {
     setContent((prev) => {
       const next = [...prev.services]
