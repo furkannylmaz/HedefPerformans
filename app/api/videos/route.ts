@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       user: {
         firstName: video.user.firstName,
         lastName: video.user.lastName,
-        mainPosition: video.user.memberProfile?.mainPositionKey || video.user.memberProfile?.mainPosition || 'N/A'
+        mainPosition: video.user.memberProfile?.mainPositionKey || 'N/A'
       }
     }))
     
