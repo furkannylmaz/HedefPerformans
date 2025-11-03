@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+
+// Dynamic route - build-time execution'ı önle
+export const dynamic = 'force-dynamic'
 import {
   SERVICES_PAGE_KEY,
   ACADEMY_PAGE_KEY,
@@ -101,7 +104,7 @@ export async function PUT(request: NextRequest) {
     switch (key) {
       case SERVICES_PAGE_KEY: {
         // Gelen içeriği direkt kaydet, merge yerine
-        const content = value as any
+        const content = value as Partial<ServicesPageContent>
         // Eksik alanları default değerlerle doldur
         const merged: ServicesPageContent = {
           hero: content.hero || defaultServicesPageContent.hero,
@@ -112,7 +115,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ success: true, data: merged })
       }
       case ACADEMY_PAGE_KEY: {
-        const content = value as any
+        const content = value as Partial<AcademyPageContent>
         const merged: AcademyPageContent = {
           hero: content.hero || defaultAcademyPageContent.hero,
           sections: content.sections || defaultAcademyPageContent.sections,
@@ -122,7 +125,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ success: true, data: merged })
       }
       case MOVEMENT_TRAINING_PAGE_KEY: {
-        const content = value as any
+        const content = value as Partial<MovementTrainingPageContent>
         const merged: MovementTrainingPageContent = {
           hero: content.hero || defaultMovementTrainingPageContent.hero,
           sections: content.sections || defaultMovementTrainingPageContent.sections,
@@ -133,7 +136,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ success: true, data: merged })
       }
       case ABOUT_PAGE_KEY: {
-        const content = value as any
+        const content = value as Partial<AboutPageContent>
         const merged: AboutPageContent = {
           hero: content.hero || defaultAboutPageContent.hero,
           mission: content.mission || defaultAboutPageContent.mission,
@@ -146,7 +149,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ success: true, data: merged })
       }
       case CONTACT_PAGE_KEY: {
-        const content = value as any
+        const content = value as Partial<ContactPageContent>
         const merged: ContactPageContent = {
           hero: content.hero || defaultContactPageContent.hero,
           contact: content.contact || defaultContactPageContent.contact,
@@ -159,13 +162,15 @@ export async function PUT(request: NextRequest) {
       default:
         return NextResponse.json({ success: false, message: 'Desteklenmeyen key' }, { status: 400 })
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[AdminPages][PUT] error', error)
-    console.error('[AdminPages][PUT] error details', error?.message, error?.stack)
+    const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata'
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('[AdminPages][PUT] error details', errorMessage, errorStack)
     return NextResponse.json({ 
       success: false, 
       message: 'Kayıt sırasında bir hata oluştu',
-      error: process.env.NODE_ENV === 'development' ? error?.message : undefined
+      error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     }, { status: 500 })
   }
 }
