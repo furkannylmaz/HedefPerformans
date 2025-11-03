@@ -54,11 +54,20 @@ function parseSetting<T>(value?: string | null): T | undefined {
 
 export async function getHomepageContent(): Promise<HomepageContent> {
   try {
+    // Runtime'da DATABASE_URL kontrolü
+    if (!process.env.DATABASE_URL) {
+      console.error('[getHomepageContent] DATABASE_URL is missing, using defaults')
+      return mergeHomepageContent(undefined)
+    }
+    
     const setting = await prisma.siteSetting.findUnique({ where: { key: HOMEPAGE_SETTING_KEY } })
     const parsed = parseSetting<HomepageContent>(setting?.value)
     return mergeHomepageContent(parsed)
   } catch (error) {
     console.error('[getHomepageContent] Database error, using defaults:', error)
+    if (error instanceof Error) {
+      console.error('[getHomepageContent] Error message:', error.message)
+    }
     return mergeHomepageContent(undefined)
   }
 }
@@ -78,11 +87,20 @@ export async function saveHomepageContent(content: HomepageContent) {
 
 export async function getSiteInfo(): Promise<SiteInfo> {
   try {
+    // Runtime'da DATABASE_URL kontrolü
+    if (!process.env.DATABASE_URL) {
+      console.error('[getSiteInfo] DATABASE_URL is missing, using defaults')
+      return mergeSiteInfo(undefined)
+    }
+    
     const setting = await prisma.siteSetting.findUnique({ where: { key: SITE_INFO_SETTING_KEY } })
     const parsed = parseSetting<SiteInfo>(setting?.value)
     return mergeSiteInfo(parsed)
   } catch (error) {
     console.error('[getSiteInfo] Database error, using defaults:', error)
+    if (error instanceof Error) {
+      console.error('[getSiteInfo] Error message:', error.message)
+    }
     return mergeSiteInfo(undefined)
   }
 }
@@ -112,6 +130,12 @@ export interface SliderItem {
 
 export async function getBanners(side?: 'LEFT' | 'RIGHT' | 'MAIN' | 'WELCOME_RIGHT'): Promise<SliderItem[]> {
   try {
+    // Runtime'da DATABASE_URL kontrolü
+    if (!process.env.DATABASE_URL) {
+      console.error('[getBanners] DATABASE_URL is missing, returning empty array')
+      return []
+    }
+    
     const where: {
       isActive: boolean
       side?: string
@@ -133,6 +157,9 @@ export async function getBanners(side?: 'LEFT' | 'RIGHT' | 'MAIN' | 'WELCOME_RIG
     return sliders
   } catch (error) {
     console.error('[getBanners] Database error, returning empty array:', error)
+    if (error instanceof Error) {
+      console.error('[getBanners] Error message:', error.message)
+    }
     return []
   }
 }
@@ -145,11 +172,21 @@ export async function getWelcomeRightImage(): Promise<string | null> {
 // Sayfa içerikleri için fonksiyonlar
 export async function getServicesPageContent(): Promise<ServicesPageContent> {
   try {
+    // Runtime'da DATABASE_URL kontrolü
+    if (!process.env.DATABASE_URL) {
+      console.error('[getServicesPageContent] DATABASE_URL is missing, using defaults')
+      return defaultServicesPageContent
+    }
+    
     const setting = await prisma.siteSetting.findUnique({ where: { key: SERVICES_PAGE_KEY } })
     const parsed = parseSetting<ServicesPageContent>(setting?.value)
     return mergePageContent('services', parsed, defaultServicesPageContent)
   } catch (error) {
     console.error('[getServicesPageContent] Database error, using defaults:', error)
+    if (error instanceof Error) {
+      console.error('[getServicesPageContent] Error message:', error.message)
+      console.error('[getServicesPageContent] Error stack:', error.stack)
+    }
     return defaultServicesPageContent
   }
 }
@@ -164,11 +201,20 @@ export async function saveServicesPageContent(content: ServicesPageContent) {
 
 export async function getAcademyPageContent(): Promise<AcademyPageContent> {
   try {
+    // Runtime'da DATABASE_URL kontrolü
+    if (!process.env.DATABASE_URL) {
+      console.error('[getAcademyPageContent] DATABASE_URL is missing, using defaults')
+      return defaultAcademyPageContent
+    }
+    
     const setting = await prisma.siteSetting.findUnique({ where: { key: ACADEMY_PAGE_KEY } })
     const parsed = parseSetting<AcademyPageContent>(setting?.value)
     return mergePageContent('academy', parsed, defaultAcademyPageContent)
   } catch (error) {
     console.error('[getAcademyPageContent] Database error, using defaults:', error)
+    if (error instanceof Error) {
+      console.error('[getAcademyPageContent] Error message:', error.message)
+    }
     return defaultAcademyPageContent
   }
 }
@@ -183,11 +229,20 @@ export async function saveAcademyPageContent(content: AcademyPageContent) {
 
 export async function getMovementTrainingPageContent(): Promise<MovementTrainingPageContent> {
   try {
+    // Runtime'da DATABASE_URL kontrolü
+    if (!process.env.DATABASE_URL) {
+      console.error('[getMovementTrainingPageContent] DATABASE_URL is missing, using defaults')
+      return defaultMovementTrainingPageContent
+    }
+    
     const setting = await prisma.siteSetting.findUnique({ where: { key: MOVEMENT_TRAINING_PAGE_KEY } })
     const parsed = parseSetting<MovementTrainingPageContent>(setting?.value)
     return mergePageContent('movementTraining', parsed, defaultMovementTrainingPageContent)
   } catch (error) {
     console.error('[getMovementTrainingPageContent] Database error, using defaults:', error)
+    if (error instanceof Error) {
+      console.error('[getMovementTrainingPageContent] Error message:', error.message)
+    }
     return defaultMovementTrainingPageContent
   }
 }
@@ -202,11 +257,20 @@ export async function saveMovementTrainingPageContent(content: MovementTrainingP
 
 export async function getAboutPageContent(): Promise<AboutPageContent> {
   try {
+    // Runtime'da DATABASE_URL kontrolü
+    if (!process.env.DATABASE_URL) {
+      console.error('[getAboutPageContent] DATABASE_URL is missing, using defaults')
+      return defaultAboutPageContent
+    }
+    
     const setting = await prisma.siteSetting.findUnique({ where: { key: ABOUT_PAGE_KEY } })
     const parsed = parseSetting<AboutPageContent>(setting?.value)
     return mergePageContent('about', parsed, defaultAboutPageContent)
   } catch (error) {
     console.error('[getAboutPageContent] Database error, using defaults:', error)
+    if (error instanceof Error) {
+      console.error('[getAboutPageContent] Error message:', error.message)
+    }
     return defaultAboutPageContent
   }
 }
@@ -221,11 +285,20 @@ export async function saveAboutPageContent(content: AboutPageContent) {
 
 export async function getContactPageContent(): Promise<ContactPageContent> {
   try {
+    // Runtime'da DATABASE_URL kontrolü
+    if (!process.env.DATABASE_URL) {
+      console.error('[getContactPageContent] DATABASE_URL is missing, using defaults')
+      return defaultContactPageContent
+    }
+    
     const setting = await prisma.siteSetting.findUnique({ where: { key: CONTACT_PAGE_KEY } })
     const parsed = parseSetting<ContactPageContent>(setting?.value)
     return mergePageContent('contact', parsed, defaultContactPageContent)
   } catch (error) {
     console.error('[getContactPageContent] Database error, using defaults:', error)
+    if (error instanceof Error) {
+      console.error('[getContactPageContent] Error message:', error.message)
+    }
     return defaultContactPageContent
   }
 }
