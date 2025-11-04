@@ -34,8 +34,8 @@ export function SiteHeader() {
             </span>
           </Link>
 
-          {/* Desktop Navigation - Orta kısım */}
-          <nav className="hidden md:flex md:items-center md:gap-1 md:flex-1 md:justify-center md:mx-4">
+          {/* Desktop Navigation - Orta kısım - Sadece md ve üzerinde görünür */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center mx-4">
             {navLinks.map((link) => (
               <Button
                 key={link.href}
@@ -49,8 +49,8 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          {/* Desktop Auth Buttons - Sağ taraf */}
-          <div className="hidden md:flex md:items-center md:gap-3 md:flex-shrink-0">
+          {/* Desktop Auth Buttons - Sağ taraf - Sadece md ve üzerinde görünür */}
+          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
             <Button
               asChild
               variant="ghost"
@@ -74,11 +74,11 @@ export function SiteHeader() {
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Sadece mobilde görünür */}
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="flex md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -89,9 +89,9 @@ export function SiteHeader() {
           </Button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - Sadece mobilde görünür */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4 space-y-2">
+          <div className="flex flex-col md:hidden border-t border-gray-200 py-4 space-y-2">
             {navLinks.map((link) => (
               <Button
                 key={link.href}

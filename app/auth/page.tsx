@@ -383,7 +383,7 @@ export default function AuthPage() {
         </div>
       </header>
 
-      <div className="relative z-10 container mx-auto px-4 py-12">
+      <div className="relative z-10 container mx-auto px-4 py-8 lg:py-12">
         <div className="grid lg:grid-cols-3 gap-8 items-center min-h-[85vh]">
           {/* Sol Slider */}
           <div className="hidden lg:block">
@@ -453,8 +453,9 @@ export default function AuthPage() {
           </div>
 
           {/* Orta - Form */}
-          <div className="w-full max-w-md mx-auto lg:col-start-2 lg:col-span-1 flex items-center justify-center">
-            <div className="text-center mb-8 lg:hidden">
+          <div className="w-full max-w-full lg:max-w-md mx-auto lg:col-start-2 lg:col-span-1 flex flex-col lg:items-center lg:justify-center">
+            {/* Mobil Başlık - Sadece mobilde görünür */}
+            <div className="text-center mb-6 lg:hidden">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 border border-red-200 mb-4">
                 <Image
                   src="/logohedef.png"
@@ -464,15 +465,15 @@ export default function AuthPage() {
                   className="h-10 w-auto object-contain"
                 />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
                 Hedef Performans
               </h1>
-              <p className="text-gray-600">
+              <p className="text-base sm:text-lg text-gray-600 px-4">
                 Futbol kariyerinizi bir üst seviyeye taşıyın
               </p>
             </div>
 
-            <Card className="border-gray-200 bg-white shadow-xl">
+            <Card className="border-gray-200 bg-white shadow-xl w-full">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 border border-red-200 mx-auto mb-2">
                   <Trophy className="h-6 w-6 text-red-600" />
