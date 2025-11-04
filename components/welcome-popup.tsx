@@ -11,39 +11,43 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ArrowRight, Calendar, MapPin } from "lucide-react";
+import {
+  X,
+  ArrowRight,
+  Calendar,
+  MapPin,
+  MessageCircle,
+  Instagram,
+} from "lucide-react";
 
 interface WelcomePopupProps {
   bannerImageUrl?: string;
   bannerTitle?: string;
   bannerLinkUrl?: string;
+  whatsappUrl?: string;
+  instagramUrl?: string;
 }
 
 export function WelcomePopup({
   bannerImageUrl,
   bannerTitle,
   bannerLinkUrl,
+  whatsappUrl,
+  instagramUrl,
 }: WelcomePopupProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // localStorage'da popup'ın daha önce gösterilip gösterilmediğini kontrol et
-    const hasSeenPopup = localStorage.getItem("hasSeenWelcomePopup");
+    // Her anasayfa açılışında popup'ı göster
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+    }, 500);
 
-    if (!hasSeenPopup) {
-      // Sayfa yüklendikten sonra küçük bir gecikme ile popup'ı göster
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
+    return () => clearTimeout(timer);
   }, []);
 
   const handleClose = () => {
     setIsOpen(false);
-    // Popup'ın gösterildiğini localStorage'a kaydet
-    localStorage.setItem("hasSeenWelcomePopup", "true");
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -59,15 +63,14 @@ export function WelcomePopup({
         <div className="flex flex-col md:grid md:grid-cols-2">
           {/* Üst/Sol Taraf - Görsel */}
           {bannerImageUrl && (
-            <div className="relative h-48 sm:h-64 md:h-auto md:min-h-[400px] w-full">
+            <div className="relative h-48 sm:h-64 md:h-auto md:min-h-[400px] w-full flex items-center justify-center bg-gray-100">
               <Image
                 src={bannerImageUrl}
                 alt={bannerTitle || "Futbolcu Seçmeleri"}
                 fill
-                className="object-cover"
+                className="object-contain"
                 unoptimized={bannerImageUrl.startsWith("http")}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             </div>
           )}
 
@@ -127,6 +130,47 @@ export function WelcomePopup({
                   </Link>
                 </Button>
               )}
+
+              {/* Sosyal Medya Butonları */}
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-2">
+                {whatsappUrl && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full border-green-500 text-green-600 hover:bg-green-50 h-11 sm:h-12 text-sm sm:text-base"
+                    onClick={handleClose}
+                  >
+                    <Link
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center"
+                    >
+                      <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      WhatsApp
+                    </Link>
+                  </Button>
+                )}
+
+                {instagramUrl && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full border-pink-500 text-pink-600 hover:bg-pink-50 h-11 sm:h-12 text-sm sm:text-base"
+                    onClick={handleClose}
+                  >
+                    <Link
+                      href={instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center"
+                    >
+                      <Instagram className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      Instagram
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>

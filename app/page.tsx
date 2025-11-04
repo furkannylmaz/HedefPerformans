@@ -83,6 +83,8 @@ export default async function HomePage() {
         bannerImageUrl={mainRightBottomBanner?.imageUrl}
         bannerTitle={mainRightBottomBanner?.title || undefined}
         bannerLinkUrl={mainRightBottomBanner?.linkUrl || undefined}
+        whatsappUrl={siteInfo.whatsapp || siteInfo.socials.whatsapp}
+        instagramUrl={siteInfo.socials.instagram}
       />
       
       {/* Header */}
