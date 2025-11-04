@@ -221,6 +221,36 @@ export function SquadsBoard({ ageGroupCode, template }: SquadsBoardProps) {
         return
       }
 
+      // Kullanıcı detaylarını çek
+      const usersResponse = await fetch('/api/users?limit=1000')
+      const usersData = await usersResponse.json()
+      const usersMap = new Map()
+      
+      if (usersData.success && usersData.data.users) {
+        usersData.data.users.forEach((user: any) => {
+          usersMap.set(user.id, user)
+        })
+      }
+
+      // Pozisyon isimleri map'i
+      const positionMap: { [key: string]: string } = {
+        'KALECI': 'KALECİ',
+        'SAG_DEF': 'SAĞ DEFANS',
+        'STOPER': 'STOPER',
+        'SOL_DEF': 'SOL DEFANS',
+        'ORTA': 'ORTA SAHA',
+        'SAG_KANAT': 'SAĞ KANAT',
+        'SOL_KANAT': 'SOL KANAT',
+        'FORVET': 'FORVET',
+        'SAGBEK': 'SAĞ BEK',
+        'SAG_STOPER': 'SAĞ STOPER',
+        'SOL_STOPER': 'SOL STOPER',
+        'SOLBEK': 'SOL BEK',
+        'ONLIBERO': 'ÖNLİBERO',
+        'ORTA_8': 'MERKEZ ORTA SAHA',
+        'ORTA_10': 'ORTA SAHA 10',
+      }
+
       // Workbook oluştur
       const workbook = XLSX.utils.book_new()
 
@@ -229,59 +259,42 @@ export function SquadsBoard({ ageGroupCode, template }: SquadsBoardProps) {
         const rows: any[] = []
 
         // Kadro başlık bilgileri
-        rows.push(['KADRO BİLGİLERİ'])
-        rows.push(['Kadro Adı', squad.name])
+        rows.push([squad.name.toUpperCase()])
         rows.push(['Yaş Grubu', squad.ageGroupCode])
         rows.push(['Template', squad.template])
         rows.push(['Instance', squad.instance])
-        rows.push(['Toplam Slot', squad.totalSlots])
-        rows.push(['Dolu Slot', squad.occupiedSlots])
-        rows.push(['Doluluk Oranı', `%${squad.occupancyRate}`])
-        if (squad.whatsappGroup) {
-          rows.push(['WhatsApp Grup', squad.whatsappGroup.groupName])
-          rows.push(['WhatsApp Link', squad.whatsappGroup.inviteUrl])
-        }
         rows.push([]) // Boş satır
-
-        // Üye başlıkları
-        rows.push(['ÜYE BİLGİLERİ'])
-        rows.push([
-          'Forma No',
-          'Pozisyon',
-          'Ad',
-          'Soyad',
-          'Ana Mevki',
-          'Durum'
-        ])
 
         // Üyeleri pozisyon numarasına göre sırala
         const sortedSlots = [...squad.slots].sort((a, b) => a.number - b.number)
 
-        // Dolu slotları ekle
+        // Her pozisyon için blok oluştur
         sortedSlots.forEach((slot) => {
+          const positionName = positionMap[slot.positionKey] || slot.positionKey.replace('_', ' ')
+          
           if (slot.isOccupied && slot.user) {
-            rows.push([
-              slot.number,
-              slot.positionKey.replace('_', ' '),
-              slot.user.firstName,
-              slot.user.lastName,
-              slot.user.mainPosition,
-              'Aktif'
-            ])
-          }
-        })
-
-        // Boş slotları ekle
-        sortedSlots.forEach((slot) => {
-          if (!slot.isOccupied) {
-            rows.push([
-              slot.number,
-              slot.positionKey.replace('_', ' '),
-              '-',
-              '-',
-              '-',
-              'Boş'
-            ])
+            const user = usersMap.get(slot.user.id)
+            const fullName = `${slot.user.firstName} ${slot.user.lastName}`
+            const team = user?.memberProfile?.team || '-'
+            const birthYear = user?.memberProfile?.birthYear || '-'
+            
+            // Pozisyon ve numara (kalın başlık gibi)
+            rows.push([`${positionName} - ${slot.number}`])
+            // Ad Soyad
+            rows.push([fullName])
+            // Takım/Kulüp
+            rows.push([team])
+            // Doğum Yılı
+            rows.push([birthYear])
+            // Boş satır (bloklar arası boşluk)
+            rows.push([])
+          } else {
+            // Boş pozisyon
+            rows.push([`${positionName} - ${slot.number}`])
+            rows.push(['-'])
+            rows.push(['-'])
+            rows.push(['-'])
+            rows.push([])
           }
         })
 
@@ -293,12 +306,7 @@ export function SquadsBoard({ ageGroupCode, template }: SquadsBoardProps) {
 
         // Kolon genişliklerini ayarla
         worksheet['!cols'] = [
-          { wch: 12 }, // Forma No
-          { wch: 18 }, // Pozisyon
-          { wch: 15 }, // Ad
-          { wch: 15 }, // Soyad
-          { wch: 15 }, // Ana Mevki
-          { wch: 10 }  // Durum
+          { wch: 30 } // Tek kolon, geniş
         ]
 
         // Workbook'a ekle
