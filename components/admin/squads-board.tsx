@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Users, UserPlus, MessageCircle, RefreshCw, Trash2 } from "lucide-react"
+import { Users, UserPlus, MessageCircle, RefreshCw, Trash2, Download } from "lucide-react"
 import { toast } from "sonner"
+import * as XLSX from 'xlsx'
 
 interface SquadSlot {
   positionKey: string
@@ -212,6 +213,111 @@ export function SquadsBoard({ ageGroupCode, template }: SquadsBoardProps) {
     }
   }
 
+  // Excel export
+  const handleExportExcel = async () => {
+    try {
+      if (squads.length === 0) {
+        toast.error("Export edilecek kadro bulunamadı")
+        return
+      }
+
+      // Workbook oluştur
+      const workbook = XLSX.utils.book_new()
+
+      // Her kadro için ayrı bir worksheet oluştur
+      squads.forEach((squad) => {
+        const rows: any[] = []
+
+        // Kadro başlık bilgileri
+        rows.push(['KADRO BİLGİLERİ'])
+        rows.push(['Kadro Adı', squad.name])
+        rows.push(['Yaş Grubu', squad.ageGroupCode])
+        rows.push(['Template', squad.template])
+        rows.push(['Instance', squad.instance])
+        rows.push(['Toplam Slot', squad.totalSlots])
+        rows.push(['Dolu Slot', squad.occupiedSlots])
+        rows.push(['Doluluk Oranı', `%${squad.occupancyRate}`])
+        if (squad.whatsappGroup) {
+          rows.push(['WhatsApp Grup', squad.whatsappGroup.groupName])
+          rows.push(['WhatsApp Link', squad.whatsappGroup.inviteUrl])
+        }
+        rows.push([]) // Boş satır
+
+        // Üye başlıkları
+        rows.push(['ÜYE BİLGİLERİ'])
+        rows.push([
+          'Forma No',
+          'Pozisyon',
+          'Ad',
+          'Soyad',
+          'Ana Mevki',
+          'Durum'
+        ])
+
+        // Üyeleri pozisyon numarasına göre sırala
+        const sortedSlots = [...squad.slots].sort((a, b) => a.number - b.number)
+
+        // Dolu slotları ekle
+        sortedSlots.forEach((slot) => {
+          if (slot.isOccupied && slot.user) {
+            rows.push([
+              slot.number,
+              slot.positionKey.replace('_', ' '),
+              slot.user.firstName,
+              slot.user.lastName,
+              slot.user.mainPosition,
+              'Aktif'
+            ])
+          }
+        })
+
+        // Boş slotları ekle
+        sortedSlots.forEach((slot) => {
+          if (!slot.isOccupied) {
+            rows.push([
+              slot.number,
+              slot.positionKey.replace('_', ' '),
+              '-',
+              '-',
+              '-',
+              'Boş'
+            ])
+          }
+        })
+
+        // Worksheet oluştur (kadro adı 31 karakterden kısa olmalı)
+        const sheetName = squad.name.length > 31 
+          ? squad.name.substring(0, 28) + '...'
+          : squad.name
+        const worksheet = XLSX.utils.aoa_to_sheet(rows)
+
+        // Kolon genişliklerini ayarla
+        worksheet['!cols'] = [
+          { wch: 12 }, // Forma No
+          { wch: 18 }, // Pozisyon
+          { wch: 15 }, // Ad
+          { wch: 15 }, // Soyad
+          { wch: 15 }, // Ana Mevki
+          { wch: 10 }  // Durum
+        ]
+
+        // Workbook'a ekle
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
+      })
+
+      // Dosya adı
+      const dateStr = new Date().toISOString().slice(0, 10)
+      const fileName = `hedef-performans-kadrolar-${dateStr}.xlsx`
+
+      // Excel dosyasını indir
+      XLSX.writeFile(workbook, fileName)
+      toast.success(`${squads.length} kadro Excel'e aktarıldı`)
+    } catch (error) {
+      console.error("Excel export error:", error)
+      toast.error("Excel export sırasında hata oluştu")
+    }
+  }
+
   // Slot tıklama
   const handleSlotClick = (squad: Squad, slot: SquadSlot) => {
     if (slot.isOccupied) return // Dolu slot'a tıklanamaz
@@ -245,6 +351,18 @@ export function SquadsBoard({ ageGroupCode, template }: SquadsBoardProps) {
 
   return (
     <div className="space-y-6">
+      {/* Export Butonu */}
+      <div className="flex justify-end">
+        <Button
+          onClick={handleExportExcel}
+          className="bg-green-600 text-white hover:bg-green-700 font-semibold"
+          disabled={squads.length === 0 || isLoading}
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Excel'e Aktar
+        </Button>
+      </div>
+
       {/* Kadro Kartları */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {squads.map((squad) => (
