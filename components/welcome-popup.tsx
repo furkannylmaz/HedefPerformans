@@ -29,13 +29,13 @@ export function WelcomePopup({
   useEffect(() => {
     // localStorage'da popup'ın daha önce gösterilip gösterilmediğini kontrol et
     const hasSeenPopup = localStorage.getItem("hasSeenWelcomePopup");
-    
+
     if (!hasSeenPopup) {
       // Sayfa yüklendikten sonra küçük bir gecikme ile popup'ı göster
       const timer = setTimeout(() => {
         setIsOpen(true);
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
   }, []);
@@ -55,11 +55,11 @@ export function WelcomePopup({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Sol Taraf - Görsel */}
+      <DialogContent className="w-[95vw] max-w-full sm:max-w-2xl p-0 gap-0 overflow-hidden">
+        <div className="flex flex-col md:grid md:grid-cols-2">
+          {/* Üst/Sol Taraf - Görsel */}
           {bannerImageUrl && (
-            <div className="relative h-64 md:h-auto min-h-[300px]">
+            <div className="relative h-48 sm:h-64 md:h-auto md:min-h-[400px] w-full">
               <Image
                 src={bannerImageUrl}
                 alt={bannerTitle || "Futbolcu Seçmeleri"}
@@ -71,51 +71,58 @@ export function WelcomePopup({
             </div>
           )}
 
-          {/* Sağ Taraf - İçerik */}
-          <div className="flex flex-col p-6 md:p-8 bg-white relative">
-            <DialogHeader className="text-left space-y-3">
-              <div className="flex items-center gap-2 text-red-600 text-sm font-semibold">
-                <Calendar className="h-4 w-4" />
+          {/* Alt/Sağ Taraf - İçerik */}
+          <div className="flex flex-col p-4 sm:p-6 md:p-8 bg-white relative">
+            <DialogHeader className="text-left space-y-2 sm:space-y-3">
+              <div className="flex items-center gap-2 text-red-600 text-xs sm:text-sm font-semibold">
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span>Haziran 2026</span>
               </div>
-              <DialogTitle className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
+              <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
                 Türkiye'nin En Büyük Futbolcu Seçmeleri
               </DialogTitle>
-              <DialogDescription className="text-base text-gray-600 space-y-2">
+              <DialogDescription className="text-sm sm:text-base text-gray-600 space-y-2">
                 <p>
-                  Profesyonel futbol kariyerinize adım atmak için eşsiz bir fırsat!
+                  Profesyonel futbol kariyerinize adım atmak için eşsiz bir
+                  fırsat!
                 </p>
-                <div className="flex items-center gap-2 text-gray-700 mt-3">
-                  <MapPin className="h-4 w-4 text-red-600" />
-                  <span className="font-medium">Yalova'da başlıyor</span>
+                <div className="flex items-center gap-2 text-gray-700 mt-2 sm:mt-3">
+                  <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                  <span className="font-medium text-sm sm:text-base">
+                    Yalova'da başlıyor
+                  </span>
                 </div>
-                <p className="text-sm text-gray-500 mt-2">
-                  Yeteneklerinizi sergileyin, profesyonel antrenörlerle çalışma fırsatı yakalayın.
-                  Geleceğin futbol yıldızları arasına katılın!
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">
+                  Yeteneklerinizi sergileyin, profesyonel antrenörlerle çalışma
+                  fırsatı yakalayın. Geleceğin futbol yıldızları arasına
+                  katılın!
                 </p>
               </DialogDescription>
             </DialogHeader>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-4 sm:mt-6 space-y-2 sm:space-y-3">
               <Button
                 asChild
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold h-12"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold h-11 sm:h-12 text-sm sm:text-base"
                 onClick={handleClose}
               >
-                <Link href="/auth">
-                  <ArrowRight className="mr-2 h-5 w-5" />
+                <Link href="/auth" className="flex items-center justify-center">
+                  <ArrowRight className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   Hemen Kaydol
                 </Link>
               </Button>
-              
+
               {bannerLinkUrl && (
                 <Button
                   asChild
                   variant="outline"
-                  className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 h-12"
+                  className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 h-11 sm:h-12 text-sm sm:text-base"
                   onClick={handleClose}
                 >
-                  <Link href={bannerLinkUrl}>
+                  <Link
+                    href={bannerLinkUrl}
+                    className="flex items-center justify-center"
+                  >
                     Daha Fazla Bilgi
                   </Link>
                 </Button>
@@ -127,4 +134,3 @@ export function WelcomePopup({
     </Dialog>
   );
 }
-

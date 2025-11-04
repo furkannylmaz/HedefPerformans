@@ -80,9 +80,9 @@ export default async function HomePage() {
     <div className="min-h-screen bg-white text-gray-900">
       {/* Welcome Popup */}
       <WelcomePopup
-        bannerImageUrl={mainLeftBanner?.imageUrl}
-        bannerTitle={mainLeftBanner?.title || undefined}
-        bannerLinkUrl={mainLeftBanner?.linkUrl || undefined}
+        bannerImageUrl={mainRightBottomBanner?.imageUrl}
+        bannerTitle={mainRightBottomBanner?.title || undefined}
+        bannerLinkUrl={mainRightBottomBanner?.linkUrl || undefined}
       />
       
       {/* Header */}
