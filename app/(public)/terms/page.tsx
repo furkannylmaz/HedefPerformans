@@ -75,10 +75,8 @@ export default function TermsPage() {
               <div>
                 <h4 className="font-semibold mb-2">2.1 Üyelik Koşulları</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>18 yaşını doldurmuş olmak</li>
                   <li>Geçerli e-posta adresi sahibi olmak</li>
                   <li>Doğru ve güncel bilgiler vermek</li>
-                  <li>Aylık 499₺ üyelik ücretini ödemek</li>
                 </ul>
               </div>
               

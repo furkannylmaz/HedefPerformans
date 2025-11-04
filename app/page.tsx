@@ -26,6 +26,7 @@ import {
 } from "@/lib/site-settings";
 import { IconKey } from "@/lib/homepage-content";
 import { SiteHeader } from "@/components/site-header";
+import { WelcomePopup } from "@/components/welcome-popup";
 
 const iconMap: Record<IconKey, React.ComponentType<{ className?: string }>> = {
   trophy: Trophy,
@@ -77,6 +78,13 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
+      {/* Welcome Popup */}
+      <WelcomePopup
+        bannerImageUrl={mainLeftBanner?.imageUrl}
+        bannerTitle={mainLeftBanner?.title || undefined}
+        bannerLinkUrl={mainLeftBanner?.linkUrl || undefined}
+      />
+      
       {/* Header */}
       <SiteHeader />
 
