@@ -897,7 +897,7 @@ export default function AuthPage() {
                                     {TURKIYE_ILLERI.map((il) => (
                                       <CommandItem
                                         key={il.value}
-                                        value={il.label.toLowerCase()}
+                                        value={il.label}
                                         onSelect={() => {
                                           registerForm.setValue("city", il.value, {
                                             shouldValidate: true,
