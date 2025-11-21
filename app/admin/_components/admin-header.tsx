@@ -13,9 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Settings, LogOut, Home, Users, Users2, Image as ImageIcon, FileText, Info } from "lucide-react"
+import { Settings, LogOut, Home, Users, Users2, Image as ImageIcon, FileText, Info, Calendar } from "lucide-react"
 
-type AdminNavKey = 'users' | 'squads' | 'sliders' | 'homepage' | 'siteInfo' | 'pages'
+type AdminNavKey = 'users' | 'squads' | 'matches' | 'sliders' | 'homepage' | 'siteInfo' | 'pages'
 
 const adminLinks: { key: AdminNavKey; href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { key: 'sliders', href: '/admin/sliders', label: 'Slider Yönetimi', icon: ImageIcon },
@@ -99,6 +99,22 @@ export function AdminHeader() {
               <Link href="/admin/squads">
                 <Users2 className="h-4 w-4 mr-2" />
                 Kadro Yönetimi
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant={pathname === '/admin/matches' ? 'default' : 'ghost'}
+              size="sm"
+              className={
+                pathname === '/admin/matches'
+                  ? 'bg-red-600 text-white hover:bg-red-700'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }
+            >
+              <Link href="/admin/matches">
+                <Calendar className="h-4 w-4 mr-2" />
+                Maç Yönetimi
               </Link>
             </Button>
 

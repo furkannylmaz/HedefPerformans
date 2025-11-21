@@ -28,6 +28,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
   Eye,
   EyeOff,
   Calendar,
@@ -41,6 +54,8 @@ import {
   Play,
   Upload,
   FileText,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
 
 // Swiper CSS import
@@ -141,6 +156,91 @@ const POSITIONS_10_PLUS_1 = [
 // Ülke seçenekleri - gerçek veriler veritabanından gelecek
 const countries: any[] = [];
 
+// Türkiye'nin 81 ili
+const TURKIYE_ILLERI = [
+  { value: "adana", label: "Adana" },
+  { value: "adiyaman", label: "Adıyaman" },
+  { value: "afyonkarahisar", label: "Afyonkarahisar" },
+  { value: "agri", label: "Ağrı" },
+  { value: "amasya", label: "Amasya" },
+  { value: "ankara", label: "Ankara" },
+  { value: "antalya", label: "Antalya" },
+  { value: "artvin", label: "Artvin" },
+  { value: "aydin", label: "Aydın" },
+  { value: "balikesir", label: "Balıkesir" },
+  { value: "bilecik", label: "Bilecik" },
+  { value: "bingol", label: "Bingöl" },
+  { value: "bitlis", label: "Bitlis" },
+  { value: "bolu", label: "Bolu" },
+  { value: "burdur", label: "Burdur" },
+  { value: "bursa", label: "Bursa" },
+  { value: "canakkale", label: "Çanakkale" },
+  { value: "cankiri", label: "Çankırı" },
+  { value: "corum", label: "Çorum" },
+  { value: "denizli", label: "Denizli" },
+  { value: "diyarbakir", label: "Diyarbakır" },
+  { value: "edirne", label: "Edirne" },
+  { value: "elazig", label: "Elazığ" },
+  { value: "erzincan", label: "Erzincan" },
+  { value: "erzurum", label: "Erzurum" },
+  { value: "eskisehir", label: "Eskişehir" },
+  { value: "gaziantep", label: "Gaziantep" },
+  { value: "giresun", label: "Giresun" },
+  { value: "gumushane", label: "Gümüşhane" },
+  { value: "hakkari", label: "Hakkari" },
+  { value: "hatay", label: "Hatay" },
+  { value: "isparta", label: "Isparta" },
+  { value: "mersin", label: "Mersin" },
+  { value: "istanbul", label: "İstanbul" },
+  { value: "izmir", label: "İzmir" },
+  { value: "kars", label: "Kars" },
+  { value: "kastamonu", label: "Kastamonu" },
+  { value: "kayseri", label: "Kayseri" },
+  { value: "kirklareli", label: "Kırklareli" },
+  { value: "kirsehir", label: "Kırşehir" },
+  { value: "kocaeli", label: "Kocaeli" },
+  { value: "konya", label: "Konya" },
+  { value: "kutahya", label: "Kütahya" },
+  { value: "malatya", label: "Malatya" },
+  { value: "manisa", label: "Manisa" },
+  { value: "kahramanmaras", label: "Kahramanmaraş" },
+  { value: "mardin", label: "Mardin" },
+  { value: "mugla", label: "Muğla" },
+  { value: "mus", label: "Muş" },
+  { value: "nevsehir", label: "Nevşehir" },
+  { value: "nigde", label: "Niğde" },
+  { value: "ordu", label: "Ordu" },
+  { value: "rize", label: "Rize" },
+  { value: "sakarya", label: "Sakarya" },
+  { value: "samsun", label: "Samsun" },
+  { value: "siirt", label: "Siirt" },
+  { value: "sinop", label: "Sinop" },
+  { value: "sivas", label: "Sivas" },
+  { value: "tekirdag", label: "Tekirdağ" },
+  { value: "tokat", label: "Tokat" },
+  { value: "trabzon", label: "Trabzon" },
+  { value: "tunceli", label: "Tunceli" },
+  { value: "sanliurfa", label: "Şanlıurfa" },
+  { value: "usak", label: "Uşak" },
+  { value: "van", label: "Van" },
+  { value: "yozgat", label: "Yozgat" },
+  { value: "zonguldak", label: "Zonguldak" },
+  { value: "aksaray", label: "Aksaray" },
+  { value: "bayburt", label: "Bayburt" },
+  { value: "karaman", label: "Karaman" },
+  { value: "kirikkale", label: "Kırıkkale" },
+  { value: "batman", label: "Batman" },
+  { value: "sirnak", label: "Şırnak" },
+  { value: "bartin", label: "Bartın" },
+  { value: "ardahan", label: "Ardahan" },
+  { value: "igdir", label: "Iğdır" },
+  { value: "yalova", label: "Yalova" },
+  { value: "karabuk", label: "Karabük" },
+  { value: "kilis", label: "Kilis" },
+  { value: "osmaniye", label: "Osmaniye" },
+  { value: "duzce", label: "Düzce" },
+];
+
 // İl seçenekleri - gerçek veriler veritabanından gelecek
 const cities: any[] = [];
 
@@ -151,6 +251,7 @@ export default function AuthPage() {
     useState(POSITIONS_7_PLUS_1);
   const [leftSliders, setLeftSliders] = useState<any[]>([]);
   const [rightSliders, setRightSliders] = useState<any[]>([]);
+  const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
 
   // Slider verilerini yükle
   useEffect(() => {
@@ -542,7 +643,7 @@ export default function AuthPage() {
                             id="login-password"
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="pl-10 pr-10 bg-gray-50 border-gray-200 text-white placeholder:text-gray-400 focus:border-red-600 focus:ring-red-600"
+                            className="pl-10 pr-10 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-red-600 focus:ring-red-600"
                             {...loginForm.register("password")}
                           />
                           <button
@@ -772,39 +873,53 @@ export default function AuthPage() {
 
                         <div className="space-y-2">
                           <Label htmlFor="city">İl</Label>
-                          <Select
-                            value={registerForm.watch("city")}
-                            onValueChange={(value) => {
-                              registerForm.setValue("city", value, {
-                                shouldValidate: true,
-                              });
-                            }}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="İl" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {cities.length > 0 ? (
-                                cities.map((city) => (
-                                  <SelectItem
-                                    key={city.value}
-                                    value={city.value}
-                                  >
-                                    {city.label}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <>
-                                  <SelectItem value="istanbul">
-                                    İstanbul
-                                  </SelectItem>
-                                  <SelectItem value="ankara">Ankara</SelectItem>
-                                  <SelectItem value="izmir">İzmir</SelectItem>
-                                  <SelectItem value="bursa">Bursa</SelectItem>
-                                </>
-                              )}
-                            </SelectContent>
-                          </Select>
+                          <Popover open={cityPopoverOpen} onOpenChange={setCityPopoverOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className="w-full justify-between"
+                              >
+                                {registerForm.watch("city")
+                                  ? TURKIYE_ILLERI.find(
+                                      (il) => il.value === registerForm.watch("city")
+                                    )?.label
+                                  : "İl seçin..."}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0" align="start">
+                              <Command>
+                                <CommandInput placeholder="İl ara..." />
+                                <CommandList>
+                                  <CommandEmpty>İl bulunamadı.</CommandEmpty>
+                                  <CommandGroup>
+                                    {TURKIYE_ILLERI.map((il) => (
+                                      <CommandItem
+                                        key={il.value}
+                                        value={il.label.toLowerCase()}
+                                        onSelect={() => {
+                                          registerForm.setValue("city", il.value, {
+                                            shouldValidate: true,
+                                          });
+                                          setCityPopoverOpen(false);
+                                        }}
+                                      >
+                                        <Check
+                                          className={`mr-2 h-4 w-4 ${
+                                            registerForm.watch("city") === il.value
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          }`}
+                                        />
+                                        {il.label}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                           {registerForm.formState.errors.city && (
                             <p className="text-sm text-destructive">
                               {registerForm.formState.errors.city.message}

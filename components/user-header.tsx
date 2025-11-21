@@ -66,6 +66,7 @@ export function UserHeader({ className }: UserHeaderProps) {
   const navItems = [
     { href: '/videos', label: 'Videolar', icon: Play },
     { href: '/member/squads', label: 'Kadrolar', icon: Users },
+    { href: '/member/matches', label: 'Maç Verilerim', icon: Calendar },
     { href: '/matches', label: 'Maç Analizleri', icon: Calendar },
   ]
 

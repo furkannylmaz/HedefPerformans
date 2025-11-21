@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
-type AdminNavKey = 'users' | 'squads' | 'sliders' | 'homepage' | 'siteInfo'
+type AdminNavKey = 'users' | 'squads' | 'matches' | 'sliders' | 'homepage' | 'siteInfo'
 
 interface AdminNavProps {
   active: AdminNavKey
@@ -10,6 +10,7 @@ interface AdminNavProps {
 const links: { key: AdminNavKey; href: string; label: string }[] = [
   { key: 'users', href: '/admin/users', label: 'Kullanıcı Yönetimi' },
   { key: 'squads', href: '/admin/squads', label: 'Kadro Yönetimi' },
+  { key: 'matches', href: '/admin/matches', label: 'Maç Yönetimi' },
   { key: 'sliders', href: '/admin/sliders', label: 'Slider Yönetimi' },
   { key: 'homepage', href: '/admin/homepage', label: 'Tanıtım İçeriği' },
   { key: 'siteInfo', href: '/admin/site-info', label: 'Site Bilgileri' },

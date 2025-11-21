@@ -33,6 +33,7 @@ model User {
   videos        Video[]
   squadAssignments SquadAssignment[]
   termsConsents TermsConsent[]
+  matchPlayers  MatchPlayer[]
 
   @@map("users")
 }
@@ -163,6 +164,7 @@ model Squad {
   // İlişkiler
   assignments   SquadAssignment[]
   whatsappGroup WhatsAppGroup?
+  matches       Match[]
 
   // Unique constraints
   @@unique([ageGroupCode, template, instance])
@@ -251,4 +253,96 @@ model ParentInfo {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("parent_infos")
+}
+
+// Maç sistemi
+model Match {
+  id            String   @id @default(cuid())
+  squadId       String   // Hangi takımın maçı
+  date          DateTime // Maç tarihi
+  opponent      String?  // Rakip takım
+  score         String?  // Skor (örn: "3-1")
+  duration      Int      @default(0) // Dakika cinsinden süre
+  status        String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  
+  // Takım istatistikleri
+  ballPossession      Float?  // Topla oynama (%)
+  totalShots          Int     @default(0)
+  shotsOnTarget       Int     @default(0)
+  shotsOffTarget      Int     @default(0)
+  blockedShots        Int     @default(0)
+  shotsOffPost        Int     @default(0) // Direkten dönen
+  missedChances       Int     @default(0) // Kaçan net pozisyon
+  opponentBoxTouches   Int     @default(0) // Rakip ceza sahası buluş
+  corners             Int     @default(0)
+  fouls               Int     @default(0)
+  totalPasses         Int     @default(0)
+  accuratePasses      Int     @default(0)
+  duelsWon            Int     @default(0) // Kazanılan ikili mücadele
+  ballRecoveries      Int     @default(0) // Başarılı top kazanma
+  aerialDuelsWon      Int     @default(0) // Kazanılan hava topu
+  interceptions       Int     @default(0) // Pas arası
+  clearances          Int     @default(0) // Uzaklaştırma
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // İlişkiler
+  squad         Squad         @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  players       MatchPlayer[]
+
+  @@map("matches")
+}
+
+// Maçta oynayan oyuncular
+model MatchPlayer {
+  id            String   @id @default(cuid())
+  matchId       String
+  userId        String
+  position      String?  // Maçtaki pozisyon
+  minutes       Int      @default(0) // Oynadığı dakika
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // İlişkiler
+  match         Match            @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stats         MatchPlayerStats?
+
+  @@unique([matchId, userId])
+  @@map("match_players")
+}
+
+// Oyuncu maç istatistikleri
+model MatchPlayerStats {
+  id                    String   @id @default(cuid())
+  matchPlayerId         String   @unique
+  
+  // Pas ve şut
+  passes                Int      @default(0)
+  keyPasses             Int      @default(0) // Kilit pas
+  shots                 Int      @default(0)
+  blockedShots           Int      @default(0) // Engellenen şut
+  
+  // Mücadele
+  groundDuels           Int      @default(0) // Yerde ikili mücadele
+  aerialDuels           Int      @default(0) // Hava topu mücadele
+  
+  // Top kazanma
+  ballRecoveries        Int      @default(0) // Top kazanma
+  looseBallRecoveries   Int      @default(0) // Sahipsiz top kazanma
+  interceptions         Int      @default(0) // Pas arası
+  
+  // Diğer
+  dribbles              Int      @default(0) // Çalım
+  saves                 Int      @default(0) // Kurtarış (kaleci için)
+  foulsCommitted        Int      @default(0) // Yaptığı fauller
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // İlişkiler
+  matchPlayer   MatchPlayer @relation(fields: [matchPlayerId], references: [id], onDelete: Cascade)
+
+  @@map("match_player_stats")
 }
