@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, Plus, Edit, BarChart3 } from "lucide-react"
+import { Calendar, Plus, Edit, BarChart3, Trash2, Play, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
@@ -118,7 +118,7 @@ export default function AdminMatchesPage() {
     }
   }
 
-  const handleCreateMatch = async (matchData: { squadId: string; date: string; opponent?: string | null; playerIds?: string[] }) => {
+  const handleCreateMatch = async (matchData: { squadId: string; date: string; opponentSquadId?: string | null; opponent?: string | null; playerIds?: string[] }) => {
     try {
       const response = await fetch('/api/admin/matches', {
         method: 'POST',
@@ -147,6 +147,47 @@ export default function AdminMatchesPage() {
   const handleOpenCompareDialog = (match: Match) => {
     setSelectedMatch(match)
     setIsCompareDialogOpen(true)
+  }
+
+  const handleUpdateStatus = async (matchId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/admin/matches/${matchId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast.success(`Maç durumu ${newStatus === 'IN_PROGRESS' ? 'başlatıldı' : 'tamamlandı'}`)
+        loadMatches()
+      } else {
+        toast.error(data.message || 'Durum güncellenemedi')
+      }
+    } catch (error) {
+      console.error("Update status error:", error)
+      toast.error("Durum güncellenirken hata oluştu")
+    }
+  }
+
+  const handleDeleteMatch = async (matchId: string) => {
+    if (!confirm('Bu maçı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) {
+      return
+    }
+    try {
+      const response = await fetch(`/api/admin/matches/${matchId}`, {
+        method: 'DELETE'
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast.success('Maç başarıyla silindi')
+        loadMatches()
+      } else {
+        toast.error(data.message || 'Maç silinemedi')
+      }
+    } catch (error) {
+      console.error("Delete match error:", error)
+      toast.error("Maç silinirken hata oluştu")
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -236,7 +277,29 @@ export default function AdminMatchesPage() {
                         </span>
                       </td>
                       <td className="p-3">
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          {match.status === 'PENDING' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-blue-50 text-blue-600 hover:bg-blue-100"
+                              onClick={() => handleUpdateStatus(match.id, 'IN_PROGRESS')}
+                            >
+                              <Play className="h-4 w-4 mr-1" />
+                              Başlat
+                            </Button>
+                          )}
+                          {match.status === 'IN_PROGRESS' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-green-50 text-green-600 hover:bg-green-100"
+                              onClick={() => handleUpdateStatus(match.id, 'COMPLETED')}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Tamamla
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
@@ -253,6 +316,15 @@ export default function AdminMatchesPage() {
                           >
                             <BarChart3 className="h-4 w-4 mr-1" />
                             Karşılaştır
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-red-50 text-red-600 hover:bg-red-100"
+                            onClick={() => handleDeleteMatch(match.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Sil
                           </Button>
                         </div>
                       </td>

@@ -124,7 +124,22 @@ export function MatchDataDialog({
 
   useEffect(() => {
     if (match) {
-      const stats: Record<string, any> = {}
+      const stats: Record<string, {
+        position?: string
+        minutes?: number
+        passes?: number
+        keyPasses?: number
+        shots?: number
+        blockedShots?: number
+        groundDuels?: number
+        aerialDuels?: number
+        ballRecoveries?: number
+        looseBallRecoveries?: number
+        interceptions?: number
+        dribbles?: number
+        saves?: number
+        foulsCommitted?: number
+      }> = {}
       match.players.forEach((player) => {
         stats[player.userId] = {
           position: player.position || "",
@@ -158,6 +173,66 @@ export function MatchDataDialog({
       if (data.success) {
         toast.success('Takım istatistikleri güncellendi')
         onUpdate()
+        // Maç verilerini yeniden yükle
+        const matchResponse = await fetch(`/api/admin/matches/${match.id}`)
+        const matchData = await matchResponse.json()
+        if (matchData.success) {
+          // Match prop'u güncellenemez, bu yüzden state'i güncelle
+          const updatedMatch = matchData.data.match
+          const stats: Record<string, {
+            position?: string
+            minutes?: number
+            passes?: number
+            keyPasses?: number
+            shots?: number
+            blockedShots?: number
+            groundDuels?: number
+            aerialDuels?: number
+            ballRecoveries?: number
+            looseBallRecoveries?: number
+            interceptions?: number
+            dribbles?: number
+            saves?: number
+            foulsCommitted?: number
+          }> = {}
+          updatedMatch.players.forEach((player: {
+            userId: string
+            position: string | null
+            minutes: number
+            stats: {
+              passes: number
+              keyPasses: number
+              shots: number
+              blockedShots: number
+              groundDuels: number
+              aerialDuels: number
+              ballRecoveries: number
+              looseBallRecoveries: number
+              interceptions: number
+              dribbles: number
+              saves: number
+              foulsCommitted: number
+            } | null
+          }) => {
+            stats[player.userId] = {
+              position: player.position || "",
+              minutes: player.minutes || 0,
+              passes: player.stats?.passes || 0,
+              keyPasses: player.stats?.keyPasses || 0,
+              shots: player.stats?.shots || 0,
+              blockedShots: player.stats?.blockedShots || 0,
+              groundDuels: player.stats?.groundDuels || 0,
+              aerialDuels: player.stats?.aerialDuels || 0,
+              ballRecoveries: player.stats?.ballRecoveries || 0,
+              looseBallRecoveries: player.stats?.looseBallRecoveries || 0,
+              interceptions: player.stats?.interceptions || 0,
+              dribbles: player.stats?.dribbles || 0,
+              saves: player.stats?.saves || 0,
+              foulsCommitted: player.stats?.foulsCommitted || 0
+            }
+          })
+          setPlayerStats(stats)
+        }
       } else {
         toast.error(data.message || 'Güncelleme başarısız')
       }
@@ -179,6 +254,65 @@ export function MatchDataDialog({
       if (data.success) {
         toast.success('Oyuncu istatistikleri güncellendi')
         onUpdate()
+        // Oyuncu verilerini yeniden yükle
+        const matchResponse = await fetch(`/api/admin/matches/${match.id}`)
+        const matchData = await matchResponse.json()
+        if (matchData.success) {
+          const updatedMatch = matchData.data.match
+          const updatedStats: Record<string, {
+            position?: string
+            minutes?: number
+            passes?: number
+            keyPasses?: number
+            shots?: number
+            blockedShots?: number
+            groundDuels?: number
+            aerialDuels?: number
+            ballRecoveries?: number
+            looseBallRecoveries?: number
+            interceptions?: number
+            dribbles?: number
+            saves?: number
+            foulsCommitted?: number
+          }> = {}
+          updatedMatch.players.forEach((player: {
+            userId: string
+            position: string | null
+            minutes: number
+            stats: {
+              passes: number
+              keyPasses: number
+              shots: number
+              blockedShots: number
+              groundDuels: number
+              aerialDuels: number
+              ballRecoveries: number
+              looseBallRecoveries: number
+              interceptions: number
+              dribbles: number
+              saves: number
+              foulsCommitted: number
+            } | null
+          }) => {
+            updatedStats[player.userId] = {
+              position: player.position || "",
+              minutes: player.minutes || 0,
+              passes: player.stats?.passes || 0,
+              keyPasses: player.stats?.keyPasses || 0,
+              shots: player.stats?.shots || 0,
+              blockedShots: player.stats?.blockedShots || 0,
+              groundDuels: player.stats?.groundDuels || 0,
+              aerialDuels: player.stats?.aerialDuels || 0,
+              ballRecoveries: player.stats?.ballRecoveries || 0,
+              looseBallRecoveries: player.stats?.looseBallRecoveries || 0,
+              interceptions: player.stats?.interceptions || 0,
+              dribbles: player.stats?.dribbles || 0,
+              saves: player.stats?.saves || 0,
+              foulsCommitted: player.stats?.foulsCommitted || 0
+            }
+          })
+          setPlayerStats(updatedStats)
+        }
       } else {
         toast.error(data.message || 'Güncelleme başarısız')
       }
@@ -372,9 +506,56 @@ export function MatchDataDialog({
                 />
               </div>
             </div>
-            <Button onClick={handleSaveTeamStats} className="w-full bg-orange-600 hover:bg-orange-700">
-              Takım İstatistiklerini Kaydet
-            </Button>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleSaveTeamStats} 
+                  className="flex-1 bg-orange-600 hover:bg-orange-700"
+                >
+                  Takım İstatistiklerini Kaydet
+                </Button>
+                {teamStats.status === 'PENDING' && (
+                  <Button
+                    onClick={async () => {
+                      const response = await fetch(`/api/admin/matches/${match.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'IN_PROGRESS' })
+                      })
+                      const data = await response.json()
+                      if (data.success) {
+                        toast.success('Maç başlatıldı')
+                        setTeamStats({ ...teamStats, status: 'IN_PROGRESS' })
+                        onUpdate()
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Maçı Başlat
+                  </Button>
+                )}
+                {teamStats.status === 'IN_PROGRESS' && (
+                  <Button
+                    onClick={async () => {
+                      const response = await fetch(`/api/admin/matches/${match.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'COMPLETED' })
+                      })
+                      const data = await response.json()
+                      if (data.success) {
+                        toast.success('Maç tamamlandı')
+                        setTeamStats({ ...teamStats, status: 'COMPLETED' })
+                        onUpdate()
+                      }
+                    }}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Maçı Tamamla
+                  </Button>
+                )}
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="players" className="space-y-4">

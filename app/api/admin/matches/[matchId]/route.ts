@@ -128,3 +128,26 @@ export async function PUT(
   }
 }
 
+// Maçı sil
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { matchId: string } }
+) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, message: 'Yetkisiz erişim' }, { status: 401 })
+  }
+
+  try {
+    await prisma.match.delete({
+      where: { id: params.matchId }
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: 'Maç başarıyla silindi'
+    })
+  } catch (error) {
+    console.error('[AdminMatchDetail][DELETE] error', error)
+    return NextResponse.json({ success: false, message: 'Maç silinirken bir hata oluştu' }, { status: 500 })
+  }
+}

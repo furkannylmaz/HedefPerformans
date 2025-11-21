@@ -63,10 +63,22 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { squadId, date, opponent, playerIds } = body
+    const { squadId, date, opponentSquadId, opponent, playerIds } = body
 
     if (!squadId || !date) {
       return NextResponse.json({ success: false, message: 'Takım ve tarih zorunludur' }, { status: 400 })
+    }
+
+    // Rakip takım adını belirle
+    let opponentName = opponent || null
+    if (opponentSquadId) {
+      const opponentSquad = await prisma.squad.findUnique({
+        where: { id: opponentSquadId },
+        select: { name: true }
+      })
+      if (opponentSquad) {
+        opponentName = opponentSquad.name
+      }
     }
 
     // Maçı oluştur
@@ -74,7 +86,7 @@ export async function POST(request: NextRequest) {
       data: {
         squadId,
         date: new Date(date),
-        opponent: opponent || null,
+        opponent: opponentName,
         status: 'PENDING'
       }
     })

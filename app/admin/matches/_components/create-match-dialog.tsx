@@ -35,6 +35,7 @@ interface CreateMatchDialogProps {
   onCreate: (data: {
     squadId: string;
     date: string;
+    opponentSquadId?: string | null;
     opponent?: string | null;
     playerIds?: string[];
   }) => void;
@@ -48,6 +49,7 @@ export function CreateMatchDialog({
 }: CreateMatchDialogProps) {
   const [selectedSquadId, setSelectedSquadId] = useState<string>("");
   const [date, setDate] = useState<string>("");
+  const [opponentSquadId, setOpponentSquadId] = useState<string>("");
   const [opponent, setOpponent] = useState<string>("");
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [squadPlayers, setSquadPlayers] = useState<
@@ -112,12 +114,14 @@ export function CreateMatchDialog({
     onCreate({
       squadId: selectedSquadId,
       date,
+      opponentSquadId: opponentSquadId || null,
       opponent: opponent || null,
       playerIds: selectedPlayerIds,
     });
     // Reset form
     setSelectedSquadId("");
     setDate("");
+    setOpponentSquadId("");
     setOpponent("");
     setSelectedPlayerIds([]);
   };
@@ -169,14 +173,38 @@ export function CreateMatchDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="opponent">Rakip</Label>
-              <Input
-                id="opponent"
-                value={opponent}
-                onChange={(e) => setOpponent(e.target.value)}
-                placeholder="Rakip takım adı"
-              />
+              <Label htmlFor="opponentSquad">Rakip Takım (Sistemden Seç)</Label>
+              <Select
+                value={opponentSquadId}
+                onValueChange={setOpponentSquadId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Rakip takım seçin (opsiyonel)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Manuel giriş</SelectItem>
+                  {squads
+                    .filter((s) => s.id !== selectedSquadId)
+                    .map((squad) => (
+                      <SelectItem key={squad.id} value={squad.id}>
+                        {squad.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
+
+            {!opponentSquadId && (
+              <div className="space-y-2">
+                <Label htmlFor="opponent">Rakip Takım Adı (Manuel)</Label>
+                <Input
+                  id="opponent"
+                  value={opponent}
+                  onChange={(e) => setOpponent(e.target.value)}
+                  placeholder="Rakip takım adı"
+                />
+              </div>
+            )}
 
             {selectedSquadId && squadPlayers.length > 0 && (
               <div className="space-y-2">
