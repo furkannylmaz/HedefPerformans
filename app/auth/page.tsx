@@ -28,19 +28,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
   Eye,
   EyeOff,
   Calendar,
@@ -54,8 +41,6 @@ import {
   Play,
   Upload,
   FileText,
-  Check,
-  ChevronsUpDown,
 } from "lucide-react";
 
 // Swiper CSS import
@@ -251,7 +236,6 @@ export default function AuthPage() {
     useState(POSITIONS_7_PLUS_1);
   const [leftSliders, setLeftSliders] = useState<any[]>([]);
   const [rightSliders, setRightSliders] = useState<any[]>([]);
-  const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
 
   // Slider verilerini yükle
   useEffect(() => {
@@ -873,55 +857,28 @@ export default function AuthPage() {
 
                         <div className="space-y-2">
                           <Label htmlFor="city">İl</Label>
-                          <Popover open={cityPopoverOpen} onOpenChange={setCityPopoverOpen}>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className="w-full justify-between"
-                              >
-                                {registerForm.watch("city")
-                                  ? TURKIYE_ILLERI.find(
-                                      (il) => il.value === registerForm.watch("city")
-                                    )?.label
-                                  : "İl seçin..."}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[300px] p-0" align="start">
-                              <Command>
-                                <CommandInput placeholder="İl ara..." />
-                                <CommandList>
-                                  <CommandEmpty>İl bulunamadı.</CommandEmpty>
-                                  <CommandGroup>
-                                    {TURKIYE_ILLERI.map((il) => {
-                                      const isSelected = registerForm.watch("city") === il.value;
-                                      return (
-                                        <CommandItem
-                                          key={il.value}
-                                          value={`${il.label} ${il.value}`}
-                                          onSelect={() => {
-                                            registerForm.setValue("city", il.value, {
-                                              shouldValidate: true,
-                                            });
-                                            setCityPopoverOpen(false);
-                                          }}
-                                          className="cursor-pointer"
-                                        >
-                                          <Check
-                                            className={`mr-2 h-4 w-4 ${
-                                              isSelected ? "opacity-100" : "opacity-0"
-                                            }`}
-                                          />
-                                          {il.label}
-                                        </CommandItem>
-                                      );
-                                    })}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
+                          <Select
+                            value={registerForm.watch("city")}
+                            onValueChange={(value) => {
+                              registerForm.setValue("city", value, {
+                                shouldValidate: true,
+                              });
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="İl" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {TURKIYE_ILLERI.map((il) => (
+                                <SelectItem
+                                  key={il.value}
+                                  value={il.value}
+                                >
+                                  {il.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           {registerForm.formState.errors.city && (
                             <p className="text-sm text-destructive">
                               {registerForm.formState.errors.city.message}
