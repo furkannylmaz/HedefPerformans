@@ -888,33 +888,35 @@ export default function AuthPage() {
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-full p-0" align="start">
+                            <PopoverContent className="w-[300px] p-0" align="start">
                               <Command>
                                 <CommandInput placeholder="İl ara..." />
                                 <CommandList>
                                   <CommandEmpty>İl bulunamadı.</CommandEmpty>
                                   <CommandGroup>
-                                    {TURKIYE_ILLERI.map((il) => (
-                                      <CommandItem
-                                        key={il.value}
-                                        value={il.label}
-                                        onSelect={() => {
-                                          registerForm.setValue("city", il.value, {
-                                            shouldValidate: true,
-                                          });
-                                          setCityPopoverOpen(false);
-                                        }}
-                                      >
-                                        <Check
-                                          className={`mr-2 h-4 w-4 ${
-                                            registerForm.watch("city") === il.value
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          }`}
-                                        />
-                                        {il.label}
-                                      </CommandItem>
-                                    ))}
+                                    {TURKIYE_ILLERI.map((il) => {
+                                      const isSelected = registerForm.watch("city") === il.value;
+                                      return (
+                                        <CommandItem
+                                          key={il.value}
+                                          value={`${il.label} ${il.value}`}
+                                          onSelect={() => {
+                                            registerForm.setValue("city", il.value, {
+                                              shouldValidate: true,
+                                            });
+                                            setCityPopoverOpen(false);
+                                          }}
+                                          className="cursor-pointer"
+                                        >
+                                          <Check
+                                            className={`mr-2 h-4 w-4 ${
+                                              isSelected ? "opacity-100" : "opacity-0"
+                                            }`}
+                                          />
+                                          {il.label}
+                                        </CommandItem>
+                                      );
+                                    })}
                                   </CommandGroup>
                                 </CommandList>
                               </Command>
