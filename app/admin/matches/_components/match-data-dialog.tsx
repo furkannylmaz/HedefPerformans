@@ -38,6 +38,13 @@ interface Match {
   aerialDuelsWon: number
   interceptions: number
   clearances: number
+  squad: {
+    id: string
+    name: string
+    ageGroupCode: string
+    template: string
+    instance: string
+  }
   players: Array<{
     id: string
     userId: string
@@ -81,6 +88,12 @@ export function MatchDataDialog({
   match,
   onUpdate
 }: MatchDataDialogProps) {
+  const [squadPlayers, setSquadPlayers] = useState<Array<{
+    id: string
+    userId: string
+    name: string
+    number: number
+  }>>([])
   const [teamStats, setTeamStats] = useState({
     opponent: match.opponent || "",
     score: match.score || "",
@@ -124,6 +137,10 @@ export function MatchDataDialog({
 
   useEffect(() => {
     if (match) {
+      // Takımdaki tüm oyuncuları yükle
+      loadSquadPlayers()
+      
+      // Mevcut oyuncu istatistiklerini yükle
       const stats: Record<string, {
         position?: string
         minutes?: number
@@ -161,6 +178,84 @@ export function MatchDataDialog({
       setPlayerStats(stats)
     }
   }, [match])
+
+  const loadSquadPlayers = async () => {
+    try {
+      const response = await fetch(`/api/squads`)
+      const data = await response.json()
+      if (data.success && match.squad) {
+        const squad = data.data.squads.find((s: { id: string }) => s.id === match.squad.id)
+        if (squad && 'slots' in squad) {
+          const players = (
+            squad.slots as Array<{
+              assignment?: {
+                user: { id: string; firstName: string; lastName: string }
+              }
+              number: number
+            }>
+          )
+            .filter(
+              (
+                slot
+              ): slot is {
+                assignment: {
+                  user: { id: string; firstName: string; lastName: string }
+                }
+                number: number
+              } => !!slot.assignment
+            )
+            .map((slot) => ({
+              id: slot.assignment.user.id,
+              userId: slot.assignment.user.id,
+              name: `${slot.assignment.user.firstName} ${slot.assignment.user.lastName}`,
+              number: slot.number,
+            }))
+          setSquadPlayers(players)
+          
+          // Eğer maçta oyuncu yoksa, takımdaki tüm oyuncuları ekle
+          if (match.players.length === 0) {
+            const initialStats: Record<string, {
+              position?: string
+              minutes?: number
+              passes?: number
+              keyPasses?: number
+              shots?: number
+              blockedShots?: number
+              groundDuels?: number
+              aerialDuels?: number
+              ballRecoveries?: number
+              looseBallRecoveries?: number
+              interceptions?: number
+              dribbles?: number
+              saves?: number
+              foulsCommitted?: number
+            }> = {}
+            players.forEach((player) => {
+              initialStats[player.userId] = {
+                position: "",
+                minutes: 0,
+                passes: 0,
+                keyPasses: 0,
+                shots: 0,
+                blockedShots: 0,
+                groundDuels: 0,
+                aerialDuels: 0,
+                ballRecoveries: 0,
+                looseBallRecoveries: 0,
+                interceptions: 0,
+                dribbles: 0,
+                saves: 0,
+                foulsCommitted: 0
+              }
+            })
+            setPlayerStats(initialStats)
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Squad players load error:", error)
+    }
+  }
 
   const handleSaveTeamStats = async () => {
     try {
@@ -560,12 +655,33 @@ export function MatchDataDialog({
 
           <TabsContent value="players" className="space-y-4">
             <div className="space-y-6">
-              {match.players.map((player) => {
-                const stats = playerStats[player.userId] || {}
+              {(squadPlayers.length > 0 ? squadPlayers : match.players.map(p => ({
+                id: p.userId,
+                userId: p.userId,
+                name: `${p.user.firstName} ${p.user.lastName}`,
+                number: 0
+              }))).map((player) => {
+                const matchPlayer = match.players.find(p => p.userId === player.userId)
+                const stats = playerStats[player.userId] || {
+                  position: matchPlayer?.position || "",
+                  minutes: matchPlayer?.minutes || 0,
+                  passes: matchPlayer?.stats?.passes || 0,
+                  keyPasses: matchPlayer?.stats?.keyPasses || 0,
+                  shots: matchPlayer?.stats?.shots || 0,
+                  blockedShots: matchPlayer?.stats?.blockedShots || 0,
+                  groundDuels: matchPlayer?.stats?.groundDuels || 0,
+                  aerialDuels: matchPlayer?.stats?.aerialDuels || 0,
+                  ballRecoveries: matchPlayer?.stats?.ballRecoveries || 0,
+                  looseBallRecoveries: matchPlayer?.stats?.looseBallRecoveries || 0,
+                  interceptions: matchPlayer?.stats?.interceptions || 0,
+                  dribbles: matchPlayer?.stats?.dribbles || 0,
+                  saves: matchPlayer?.stats?.saves || 0,
+                  foulsCommitted: matchPlayer?.stats?.foulsCommitted || 0
+                }
                 return (
                   <div key={player.userId} className="border rounded-lg p-4 space-y-4">
                     <div className="font-semibold text-lg">
-                      {player.user.firstName} {player.user.lastName}
+                      {player.name} {player.number > 0 && `(${player.number})`}
                     </div>
                     <div className="grid grid-cols-4 gap-4">
                       <div className="space-y-2">

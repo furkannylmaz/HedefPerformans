@@ -27,7 +27,10 @@ import {
   Star,
   User,
   LogOut,
-  Lock
+  Lock,
+  CreditCard,
+  Copy,
+  Check
 } from "lucide-react"
 
 // Video yükleme form şeması
@@ -64,9 +67,19 @@ export default function MemberDashboard() {
   const router = useRouter()
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false)
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [userData, setUserData] = useState<any>(null)
+  const [bankInfo, setBankInfo] = useState<{
+    bankName: string
+    accountName: string
+    iban: string
+    accountNumber: string
+    branch: string
+    amount: string
+  } | null>(null)
+  const [copied, setCopied] = useState(false)
 
   // Video yükleme formu
   const uploadForm = useForm<VideoUploadForm>({
@@ -113,6 +126,24 @@ export default function MemberDashboard() {
 
     loadUserData()
   }, [])
+
+  // Banka bilgilerini yükle (dialog açıldığında)
+  useEffect(() => {
+    if (isPaymentDialogOpen && !bankInfo) {
+      const loadBankInfo = async () => {
+        try {
+          const response = await fetch('/api/user/site-info')
+          const data = await response.json()
+          if (data.success && data.data?.bankInfo) {
+            setBankInfo(data.data.bankInfo)
+          }
+        } catch (error) {
+          console.error("Bank info load error:", error)
+        }
+      }
+      loadBankInfo()
+    }
+  }, [isPaymentDialogOpen, bankInfo])
 
   // Boş istatistikler - gerçek veriler API'den gelecek
   const stats: Stats = userData?.stats ? {
@@ -233,6 +264,86 @@ export default function MemberDashboard() {
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Ödeme Bilgileri Butonu */}
+          <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="default" className="flex items-center gap-2 border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold px-4 py-2">
+                <CreditCard className="h-5 w-5" />
+                <span>Ödeme Bilgileri</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Banka Hesap Bilgileri
+                </DialogTitle>
+                <DialogDescription>
+                  Havale/EFT ile ödeme yapmak için banka bilgileri
+                </DialogDescription>
+              </DialogHeader>
+              {bankInfo ? (
+                <div className="space-y-4 py-4">
+                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <p className="text-sm text-muted-foreground mb-1">Ödenecek Tutar</p>
+                    <p className="text-3xl font-bold text-primary">{bankInfo.amount} ₺</p>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold text-muted-foreground mb-1">Banka</p>
+                      <div className="p-3 bg-muted rounded-lg">
+                        <span className="font-semibold">{bankInfo.bankName}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-muted-foreground mb-1">IBAN</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 p-3 bg-muted rounded-lg font-mono text-sm">
+                          {bankInfo.iban}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            navigator.clipboard.writeText(bankInfo.iban)
+                            setCopied(true)
+                            setTimeout(() => setCopied(false), 2000)
+                          }}
+                        >
+                          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-muted-foreground mb-1">Hesap Sahibi</p>
+                      <div className="p-3 bg-muted rounded-lg">
+                        {bankInfo.accountName}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-muted-foreground mb-1">Hesap No</p>
+                        <div className="p-3 bg-muted rounded-lg font-mono text-sm">
+                          {bankInfo.accountNumber}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-muted-foreground mb-1">Şube</p>
+                        <div className="p-3 bg-muted rounded-lg text-sm">
+                          {bankInfo.branch}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Banka bilgileri yükleniyor...</p>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+
           {/* Hesabım Butonu */}
           <Dialog open={isAccountDialogOpen} onOpenChange={setIsAccountDialogOpen}>
             <DialogTrigger asChild>

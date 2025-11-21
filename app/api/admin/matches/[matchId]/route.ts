@@ -10,15 +10,16 @@ function isAdminAuthenticated(request: NextRequest): boolean {
 // Maç detayı
 export async function GET(
   request: NextRequest,
-  { params }: { params: { matchId: string } }
+  { params }: { params: Promise<{ matchId: string }> | { matchId: string } }
 ) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json({ success: false, message: 'Yetkisiz erişim' }, { status: 401 })
   }
 
   try {
+    const resolvedParams = await Promise.resolve(params)
     const match = await prisma.match.findUnique({
-      where: { id: params.matchId },
+      where: { id: resolvedParams.matchId },
       include: {
         squad: {
           select: {
@@ -59,13 +60,14 @@ export async function GET(
 // Maç verilerini güncelle (takım istatistikleri)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { matchId: string } }
+  { params }: { params: Promise<{ matchId: string }> | { matchId: string } }
 ) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json({ success: false, message: 'Yetkisiz erişim' }, { status: 401 })
   }
 
   try {
+    const resolvedParams = await Promise.resolve(params)
     const body = await request.json()
     const {
       opponent,
@@ -92,7 +94,7 @@ export async function PUT(
     } = body
 
     const match = await prisma.match.update({
-      where: { id: params.matchId },
+      where: { id: resolvedParams.matchId },
       data: {
         opponent: opponent !== undefined ? opponent : undefined,
         score: score !== undefined ? score : undefined,
@@ -131,15 +133,16 @@ export async function PUT(
 // Maçı sil
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { matchId: string } }
+  { params }: { params: Promise<{ matchId: string }> | { matchId: string } }
 ) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json({ success: false, message: 'Yetkisiz erişim' }, { status: 401 })
   }
 
   try {
+    const resolvedParams = await Promise.resolve(params)
     await prisma.match.delete({
-      where: { id: params.matchId }
+      where: { id: resolvedParams.matchId }
     })
 
     return NextResponse.json({

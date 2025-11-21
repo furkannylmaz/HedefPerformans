@@ -10,13 +10,14 @@ function isAdminAuthenticated(request: NextRequest): boolean {
 // Oyuncu istatistiklerini güncelle veya oluştur
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { matchId: string; playerId: string } }
+  { params }: { params: Promise<{ matchId: string; playerId: string }> | { matchId: string; playerId: string } }
 ) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json({ success: false, message: 'Yetkisiz erişim' }, { status: 401 })
   }
 
   try {
+    const resolvedParams = await Promise.resolve(params)
     const body = await request.json()
     const {
       position,
@@ -39,8 +40,8 @@ export async function PUT(
     let matchPlayer = await prisma.matchPlayer.findUnique({
       where: {
         matchId_userId: {
-          matchId: params.matchId,
-          userId: params.playerId
+          matchId: resolvedParams.matchId,
+          userId: resolvedParams.playerId
         }
       }
     })
@@ -48,13 +49,13 @@ export async function PUT(
     if (!matchPlayer) {
       matchPlayer = await prisma.matchPlayer.create({
         data: {
-          matchId: params.matchId,
-          userId: params.playerId,
+          matchId: resolvedParams.matchId,
+          userId: resolvedParams.playerId,
           position: position || null,
           minutes: minutes || 0
         }
       })
-    } else {
+    } else if (matchPlayer) {
       // MatchPlayer'ı güncelle
       matchPlayer = await prisma.matchPlayer.update({
         where: { id: matchPlayer.id },

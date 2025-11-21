@@ -114,7 +114,10 @@ export function CreateMatchDialog({
     onCreate({
       squadId: selectedSquadId,
       date,
-      opponentSquadId: opponentSquadId || null,
+      opponentSquadId:
+        opponentSquadId && opponentSquadId !== "manual"
+          ? opponentSquadId
+          : null,
       opponent: opponent || null,
       playerIds: selectedPlayerIds,
     });
@@ -182,7 +185,7 @@ export function CreateMatchDialog({
                   <SelectValue placeholder="Rakip takım seçin (opsiyonel)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Manuel giriş</SelectItem>
+                  <SelectItem value="manual">Manuel giriş</SelectItem>
                   {squads
                     .filter((s) => s.id !== selectedSquadId)
                     .map((squad) => (
@@ -194,7 +197,7 @@ export function CreateMatchDialog({
               </Select>
             </div>
 
-            {!opponentSquadId && (
+            {(!opponentSquadId || opponentSquadId === "manual") && (
               <div className="space-y-2">
                 <Label htmlFor="opponent">Rakip Takım Adı (Manuel)</Label>
                 <Input

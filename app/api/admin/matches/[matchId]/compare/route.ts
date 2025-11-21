@@ -10,13 +10,14 @@ function isAdminAuthenticated(request: NextRequest): boolean {
 // İki oyuncuyu karşılaştır
 export async function GET(
   request: NextRequest,
-  { params }: { params: { matchId: string } }
+  { params }: { params: Promise<{ matchId: string }> | { matchId: string } }
 ) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json({ success: false, message: 'Yetkisiz erişim' }, { status: 401 })
   }
 
   try {
+    const resolvedParams = await Promise.resolve(params)
     const { searchParams } = new URL(request.url)
     const player1Id = searchParams.get('player1Id')
     const player2Id = searchParams.get('player2Id')
@@ -30,7 +31,7 @@ export async function GET(
       prisma.matchPlayer.findUnique({
         where: {
           matchId_userId: {
-            matchId: params.matchId,
+            matchId: resolvedParams.matchId,
             userId: player1Id
           }
         },
@@ -46,7 +47,7 @@ export async function GET(
       prisma.matchPlayer.findUnique({
         where: {
           matchId_userId: {
-            matchId: params.matchId,
+            matchId: resolvedParams.matchId,
             userId: player2Id
           }
         },
