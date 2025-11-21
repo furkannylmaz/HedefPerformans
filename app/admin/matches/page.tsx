@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, Plus, Edit, Trash2, Users, BarChart3 } from "lucide-react"
+import { Calendar, Plus, Edit, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
@@ -53,9 +53,23 @@ interface Match {
   score: string | null
   duration: number
   status: string
+  ballPossession: number | null
+  totalShots: number
+  shotsOnTarget: number
+  shotsOffTarget: number
+  blockedShots: number
+  shotsOffPost: number
+  missedChances: number
+  opponentBoxTouches: number
+  corners: number
+  fouls: number
   totalPasses: number
   accuratePasses: number
   duelsWon: number
+  ballRecoveries: number
+  aerialDuelsWon: number
+  interceptions: number
+  clearances: number
   squad: Squad
   players: MatchPlayer[]
 }
@@ -104,7 +118,7 @@ export default function AdminMatchesPage() {
     }
   }
 
-  const handleCreateMatch = async (matchData: any) => {
+  const handleCreateMatch = async (matchData: { squadId: string; date: string; opponent?: string | null; playerIds?: string[] }) => {
     try {
       const response = await fetch('/api/admin/matches', {
         method: 'POST',

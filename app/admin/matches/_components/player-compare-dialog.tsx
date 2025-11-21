@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -58,12 +57,12 @@ interface ComparisonData {
   player1: {
     id: string
     name: string
-    stats: any
+    stats: Record<string, number>
   } | null
   player2: {
     id: string
     name: string
-    stats: any
+    stats: Record<string, number>
   } | null
 }
 
@@ -85,6 +84,7 @@ export function PlayerCompareDialog({
     } else {
       setComparison({ player1: null, player2: null })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player1Id, player2Id])
 
   const loadComparison = async () => {
@@ -104,12 +104,7 @@ export function PlayerCompareDialog({
     }
   }
 
-  const getPlayerName = (userId: string) => {
-    const player = match.players.find(p => p.user.id === userId)
-    return player ? `${player.user.firstName} ${player.user.lastName}` : ""
-  }
-
-  const getStatValue = (player: any, stat: string) => {
+  const getStatValue = (player: { stats?: Record<string, number> } | null, stat: string) => {
     if (!player || !player.stats) return 0
     return player.stats[stat] || 0
   }

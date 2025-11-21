@@ -105,7 +105,22 @@ export function MatchDataDialog({
     status: match.status
   })
 
-  const [playerStats, setPlayerStats] = useState<Record<string, any>>({})
+  const [playerStats, setPlayerStats] = useState<Record<string, {
+    position?: string
+    minutes?: number
+    passes?: number
+    keyPasses?: number
+    shots?: number
+    blockedShots?: number
+    groundDuels?: number
+    aerialDuels?: number
+    ballRecoveries?: number
+    looseBallRecoveries?: number
+    interceptions?: number
+    dribbles?: number
+    saves?: number
+    foulsCommitted?: number
+  }>>({})
 
   useEffect(() => {
     if (match) {
