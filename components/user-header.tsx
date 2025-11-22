@@ -75,7 +75,7 @@ export function UserHeader({ className }: UserHeaderProps) {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/member/dashboard" className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-3">
             <Image
               src="/logohedef.png"
               alt="Hedef Performans Logo"

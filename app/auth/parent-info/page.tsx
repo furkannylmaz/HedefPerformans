@@ -54,18 +54,9 @@ const occupationGroups = [
   { value: "DIGER", label: "Diğer" },
 ];
 
-// Şehirler (örnek)
+// Şehirler
 const cities = [
-  "İstanbul",
-  "Ankara",
-  "İzmir",
-  "Bursa",
-  "Antalya",
-  "Adana",
-  "Konya",
-  "Gaziantep",
-  "Kocaeli",
-  "Diyarbakır",
+  "Yalova",
 ];
 
 export default function ParentInfoPage() {
@@ -244,7 +235,7 @@ export default function ParentInfoPage() {
                   {/* Seçmelere Katılacağınız Şehir */}
                   <div className="space-y-2">
                     <Label htmlFor="participationCity">
-                      Seçmelere Katılacağınız Şehir
+                      Katılacağınız seçmenin yapılacağı şehir
                     </Label>
                     <Select
                       value={parentInfoForm.watch("participationCity")}
