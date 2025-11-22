@@ -118,7 +118,10 @@ export async function PUT(request: NextRequest) {
           cta: content.cta || defaultServicesPageContent.cta,
         }
         await saveServicesPageContent(merged)
-        return NextResponse.json({ success: true, data: merged })
+        // Veritabanından tekrar okuyarak doğrula
+        const saved = await getServicesPageContent()
+        console.log('[AdminPages][PUT] ServicesPage saved and verified')
+        return NextResponse.json({ success: true, data: saved })
       }
       case ACADEMY_PAGE_KEY: {
         const content = value as Partial<AcademyPageContent>
@@ -128,7 +131,10 @@ export async function PUT(request: NextRequest) {
           cta: content.cta || defaultAcademyPageContent.cta,
         }
         await saveAcademyPageContent(merged)
-        return NextResponse.json({ success: true, data: merged })
+        // Veritabanından tekrar okuyarak doğrula
+        const saved = await getAcademyPageContent()
+        console.log('[AdminPages][PUT] AcademyPage saved and verified')
+        return NextResponse.json({ success: true, data: saved })
       }
       case MOVEMENT_TRAINING_PAGE_KEY: {
         const content = value as Partial<MovementTrainingPageContent>
@@ -139,7 +145,10 @@ export async function PUT(request: NextRequest) {
           cta: content.cta || defaultMovementTrainingPageContent.cta,
         }
         await saveMovementTrainingPageContent(merged)
-        return NextResponse.json({ success: true, data: merged })
+        // Veritabanından tekrar okuyarak doğrula
+        const saved = await getMovementTrainingPageContent()
+        console.log('[AdminPages][PUT] MovementTrainingPage saved and verified')
+        return NextResponse.json({ success: true, data: saved })
       }
       case ABOUT_PAGE_KEY: {
         const content = value as Partial<AboutPageContent>
@@ -152,7 +161,10 @@ export async function PUT(request: NextRequest) {
           cta: content.cta || defaultAboutPageContent.cta,
         }
         await saveAboutPageContent(merged)
-        return NextResponse.json({ success: true, data: merged })
+        // Veritabanından tekrar okuyarak doğrula
+        const saved = await getAboutPageContent()
+        console.log('[AdminPages][PUT] AboutPage saved and verified')
+        return NextResponse.json({ success: true, data: saved })
       }
       case CONTACT_PAGE_KEY: {
         const content = value as Partial<ContactPageContent>
@@ -163,7 +175,10 @@ export async function PUT(request: NextRequest) {
           map: content.map || defaultContactPageContent.map,
         }
         await saveContactPageContent(merged)
-        return NextResponse.json({ success: true, data: merged })
+        // Veritabanından tekrar okuyarak doğrula
+        const saved = await getContactPageContent()
+        console.log('[AdminPages][PUT] ContactPage saved and verified')
+        return NextResponse.json({ success: true, data: saved })
       }
       default:
         return NextResponse.json({ success: false, message: 'Desteklenmeyen key' }, { status: 400 })

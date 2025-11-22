@@ -30,7 +30,7 @@ export const defaultServicesPageContent: ServicesPageContent = {
   hero: {
     title: "Bireysel Hizmetlerimiz",
     subtitle: "Sporcunun Tüm Gelişimini Kapsayan Kapsamlı Destek ve Performans Hizmetleri",
-    description: "Gold Performans, temel hareket eğitiminden elit sporcu programlarına kadar uzanan geniş bir yelpazede, bireysel yetenekleri zirveye taşımayı hedefler.",
+    description: "Hedef Performans, temel hareket eğitiminden elit sporcu programlarına kadar uzanan geniş bir yelpazede, bireysel yetenekleri zirveye taşımayı hedefler.",
   },
   services: [
     {
@@ -179,7 +179,7 @@ export const defaultServicesPageContent: ServicesPageContent = {
     },
   ],
   cta: {
-    title: "Gold Performans Ailesine Dahil Olun",
+    title: "Hedef Performans Ailesine Dahil Olun",
     description: "Sporcunun Tüm Gelişimini Kapsayan Kapsamlı Destek ve Performans Hizmetleri",
     buttonText: "Katıl",
     buttonLink: "/auth",
@@ -211,7 +211,7 @@ export interface AcademyPageContent {
 
 export const defaultAcademyPageContent: AcademyPageContent = {
   hero: {
-    title: "Gold Performans Futbol Koleji",
+    title: "Hedef Performans Futbol Koleji",
     subtitle: "Temelden Zirveye",
     description: "Küçük yaştaki yetenekleri bilimsel yöntemlerle keşfeder, geliştirir ve geleceğin yıldızlarına dönüşmeleri için rehberlik eder.",
   },
@@ -273,7 +273,7 @@ export const defaultAcademyPageContent: AcademyPageContent = {
     },
   ],
   cta: {
-    title: "Gold Performans Ailesine Dahil Olun",
+    title: "Hedef Performans Ailesine Dahil Olun",
     description: "Sporcunun Tüm Gelişimini Kapsayan Kapsamlı Destek ve Performans Hizmetleri",
     buttonText: "Katıl",
     buttonLink: "/auth",
@@ -307,7 +307,7 @@ export const defaultMovementTrainingPageContent: MovementTrainingPageContent = {
   hero: {
     title: "Erken Yaşta Spor Altyapısı İçin Bilimsel Temel Hareket Eğitimi",
     subtitle: "Güçlü Sporcu, Sağlam Temelle Yetişir",
-    description: "Sporun temeli, doğru hareketle başlar. Gold Performans olarak, çocukluk dönemindeki sporcuların fiziksel gelişimlerini desteklemek amacıyla yapılandırılmış Temel Hareket Eğitimi programımız; denge, koordinasyon, esneklik, çeviklik ve motor becerileri geliştirmeye odaklanır. Bu eğitim, yalnızca spora hazırlık değil; aynı zamanda çocukların genel fiziksel kapasitesini güçlendiren, güvenli ve eğitici bir süreçtir.",
+    description: "Sporun temeli, doğru hareketle başlar. Hedef Performans olarak, çocukluk dönemindeki sporcuların fiziksel gelişimlerini desteklemek amacıyla yapılandırılmış Temel Hareket Eğitimi programımız; denge, koordinasyon, esneklik, çeviklik ve motor becerileri geliştirmeye odaklanır. Bu eğitim, yalnızca spora hazırlık değil; aynı zamanda çocukların genel fiziksel kapasitesini güçlendiren, güvenli ve eğitici bir süreçtir.",
   },
   sections: [
     {
@@ -377,8 +377,8 @@ export interface AboutPageContent {
 export const defaultAboutPageContent: AboutPageContent = {
   hero: {
     title: "Hakkımızda",
-    subtitle: "Gold Performans",
-    description: "Sporcu gelişiminde öncü olan Gold Performans, bilimsel yaklaşım ve deneyimli kadromuzla sporcuların en iyi versiyonlarına ulaşmalarını sağlıyoruz.",
+    subtitle: "Hedef Performans",
+    description: "Sporcu gelişiminde öncü olan Hedef Performans, bilimsel yaklaşım ve deneyimli kadromuzla sporcuların en iyi versiyonlarına ulaşmalarını sağlıyoruz.",
   },
   mission: {
     title: "Misyonumuz",
@@ -418,7 +418,7 @@ export const defaultAboutPageContent: AboutPageContent = {
     students: 0,
   },
   cta: {
-    title: "Gold Performans Ailesine Katılın",
+    title: "Hedef Performans Ailesine Katılın",
     description: "Siz de başarı hikayemizin bir parçası olun",
     buttonText: "Başvur",
     buttonLink: "/auth",

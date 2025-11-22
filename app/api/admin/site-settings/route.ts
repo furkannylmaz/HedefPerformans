@@ -80,13 +80,19 @@ export async function PUT(request: NextRequest) {
     if (key === HOMEPAGE_SETTING_KEY) {
       const merged = mergeHomepageContent(value as any)
       await saveHomepageContent(merged)
-      return NextResponse.json({ success: true, data: merged })
+      // Veritabanından tekrar okuyarak doğrula
+      const saved = await getHomepageContent()
+      console.log('[SiteSettings][PUT] Homepage saved and verified')
+      return NextResponse.json({ success: true, data: saved })
     }
 
     if (key === SITE_INFO_SETTING_KEY) {
       const merged = mergeSiteInfo(value as any)
       await saveSiteInfo(merged)
-      return NextResponse.json({ success: true, data: merged })
+      // Veritabanından tekrar okuyarak doğrula
+      const saved = await getSiteInfo()
+      console.log('[SiteSettings][PUT] SiteInfo saved and verified')
+      return NextResponse.json({ success: true, data: saved })
     }
 
     return NextResponse.json({ success: false, message: 'Desteklenmeyen key' }, { status: 400 })

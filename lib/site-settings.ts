@@ -73,16 +73,23 @@ export async function getHomepageContent(): Promise<HomepageContent> {
 }
 
 export async function saveHomepageContent(content: HomepageContent) {
-  await prisma.siteSetting.upsert({
-    where: { key: HOMEPAGE_SETTING_KEY },
-    update: {
-      value: serialiseSetting(content),
-    },
-    create: {
-      key: HOMEPAGE_SETTING_KEY,
-      value: serialiseSetting(content),
-    },
-  })
+  try {
+    const result = await prisma.siteSetting.upsert({
+      where: { key: HOMEPAGE_SETTING_KEY },
+      update: {
+        value: serialiseSetting(content),
+      },
+      create: {
+        key: HOMEPAGE_SETTING_KEY,
+        value: serialiseSetting(content),
+      },
+    })
+    console.log('[saveHomepageContent] Successfully saved:', result.key)
+    return result
+  } catch (error) {
+    console.error('[saveHomepageContent] Database error:', error)
+    throw error
+  }
 }
 
 export async function getSiteInfo(): Promise<SiteInfo> {
@@ -106,16 +113,23 @@ export async function getSiteInfo(): Promise<SiteInfo> {
 }
 
 export async function saveSiteInfo(info: SiteInfo) {
-  await prisma.siteSetting.upsert({
-    where: { key: SITE_INFO_SETTING_KEY },
-    update: {
-      value: serialiseSetting(info),
-    },
-    create: {
-      key: SITE_INFO_SETTING_KEY,
-      value: serialiseSetting(info),
-    },
-  })
+  try {
+    const result = await prisma.siteSetting.upsert({
+      where: { key: SITE_INFO_SETTING_KEY },
+      update: {
+        value: serialiseSetting(info),
+      },
+      create: {
+        key: SITE_INFO_SETTING_KEY,
+        value: serialiseSetting(info),
+      },
+    })
+    console.log('[saveSiteInfo] Successfully saved:', result.key)
+    return result
+  } catch (error) {
+    console.error('[saveSiteInfo] Database error:', error)
+    throw error
+  }
 }
 
 export interface SliderItem {
@@ -192,11 +206,18 @@ export async function getServicesPageContent(): Promise<ServicesPageContent> {
 }
 
 export async function saveServicesPageContent(content: ServicesPageContent) {
-  await prisma.siteSetting.upsert({
-    where: { key: SERVICES_PAGE_KEY },
-    update: { value: serialiseSetting(content) },
-    create: { key: SERVICES_PAGE_KEY, value: serialiseSetting(content) },
-  })
+  try {
+    const result = await prisma.siteSetting.upsert({
+      where: { key: SERVICES_PAGE_KEY },
+      update: { value: serialiseSetting(content) },
+      create: { key: SERVICES_PAGE_KEY, value: serialiseSetting(content) },
+    })
+    console.log('[saveServicesPageContent] Successfully saved:', result.key)
+    return result
+  } catch (error) {
+    console.error('[saveServicesPageContent] Database error:', error)
+    throw error
+  }
 }
 
 export async function getAcademyPageContent(): Promise<AcademyPageContent> {
@@ -220,11 +241,18 @@ export async function getAcademyPageContent(): Promise<AcademyPageContent> {
 }
 
 export async function saveAcademyPageContent(content: AcademyPageContent) {
-  await prisma.siteSetting.upsert({
-    where: { key: ACADEMY_PAGE_KEY },
-    update: { value: serialiseSetting(content) },
-    create: { key: ACADEMY_PAGE_KEY, value: serialiseSetting(content) },
-  })
+  try {
+    const result = await prisma.siteSetting.upsert({
+      where: { key: ACADEMY_PAGE_KEY },
+      update: { value: serialiseSetting(content) },
+      create: { key: ACADEMY_PAGE_KEY, value: serialiseSetting(content) },
+    })
+    console.log('[saveAcademyPageContent] Successfully saved:', result.key)
+    return result
+  } catch (error) {
+    console.error('[saveAcademyPageContent] Database error:', error)
+    throw error
+  }
 }
 
 export async function getMovementTrainingPageContent(): Promise<MovementTrainingPageContent> {
@@ -248,11 +276,18 @@ export async function getMovementTrainingPageContent(): Promise<MovementTraining
 }
 
 export async function saveMovementTrainingPageContent(content: MovementTrainingPageContent) {
-  await prisma.siteSetting.upsert({
-    where: { key: MOVEMENT_TRAINING_PAGE_KEY },
-    update: { value: serialiseSetting(content) },
-    create: { key: MOVEMENT_TRAINING_PAGE_KEY, value: serialiseSetting(content) },
-  })
+  try {
+    const result = await prisma.siteSetting.upsert({
+      where: { key: MOVEMENT_TRAINING_PAGE_KEY },
+      update: { value: serialiseSetting(content) },
+      create: { key: MOVEMENT_TRAINING_PAGE_KEY, value: serialiseSetting(content) },
+    })
+    console.log('[saveMovementTrainingPageContent] Successfully saved:', result.key)
+    return result
+  } catch (error) {
+    console.error('[saveMovementTrainingPageContent] Database error:', error)
+    throw error
+  }
 }
 
 export async function getAboutPageContent(): Promise<AboutPageContent> {
@@ -276,11 +311,18 @@ export async function getAboutPageContent(): Promise<AboutPageContent> {
 }
 
 export async function saveAboutPageContent(content: AboutPageContent) {
-  await prisma.siteSetting.upsert({
-    where: { key: ABOUT_PAGE_KEY },
-    update: { value: serialiseSetting(content) },
-    create: { key: ABOUT_PAGE_KEY, value: serialiseSetting(content) },
-  })
+  try {
+    const result = await prisma.siteSetting.upsert({
+      where: { key: ABOUT_PAGE_KEY },
+      update: { value: serialiseSetting(content) },
+      create: { key: ABOUT_PAGE_KEY, value: serialiseSetting(content) },
+    })
+    console.log('[saveAboutPageContent] Successfully saved:', result.key)
+    return result
+  } catch (error) {
+    console.error('[saveAboutPageContent] Database error:', error)
+    throw error
+  }
 }
 
 export async function getContactPageContent(): Promise<ContactPageContent> {
@@ -304,10 +346,17 @@ export async function getContactPageContent(): Promise<ContactPageContent> {
 }
 
 export async function saveContactPageContent(content: ContactPageContent) {
-  await prisma.siteSetting.upsert({
-    where: { key: CONTACT_PAGE_KEY },
-    update: { value: serialiseSetting(content) },
-    create: { key: CONTACT_PAGE_KEY, value: serialiseSetting(content) },
-  })
+  try {
+    const result = await prisma.siteSetting.upsert({
+      where: { key: CONTACT_PAGE_KEY },
+      update: { value: serialiseSetting(content) },
+      create: { key: CONTACT_PAGE_KEY, value: serialiseSetting(content) },
+    })
+    console.log('[saveContactPageContent] Successfully saved:', result.key)
+    return result
+  } catch (error) {
+    console.error('[saveContactPageContent] Database error:', error)
+    throw error
+  }
 }
 
