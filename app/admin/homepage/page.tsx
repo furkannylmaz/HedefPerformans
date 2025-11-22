@@ -48,26 +48,26 @@ export default function AdminHomepagePage() {
   const testimonials = useMemo(() => content.testimonials.items ?? [], [content.testimonials.items])
   const gallery = useMemo(() => content.media.gallery ?? [], [content.media.gallery])
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(`${API_ENDPOINT}?key=homepage`)
-        const data = await response.json()
+  const fetchContent = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`${API_ENDPOINT}?key=homepage&t=${Date.now()}`)
+      const data = await response.json()
 
-        if (data.success && data.data) {
-          setContent(data.data as HomepageContent)
-        } else {
-          toast.error(data.message || "İçerik yüklenemedi")
-        }
-      } catch (error) {
-        console.error("[AdminHomepage] fetch error", error)
-        toast.error("İçerik yüklenirken bir hata oluştu")
-      } finally {
-        setLoading(false)
+      if (data.success && data.data) {
+        setContent(data.data as HomepageContent)
+      } else {
+        toast.error(data.message || "İçerik yüklenemedi")
       }
+    } catch (error) {
+      console.error("[AdminHomepage] fetch error", error)
+      toast.error("İçerik yüklenirken bir hata oluştu")
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchContent()
   }, [])
 
@@ -456,6 +456,8 @@ export default function AdminHomepagePage() {
       if (data.success) {
         setContent(data.data as HomepageContent)
         toast.success("Ana sayfa içeriği güncellendi")
+        // Verileri yeniden yükle
+        await fetchContent()
       } else {
         toast.error(data.message || "Kayıt tamamlanamadı")
       }

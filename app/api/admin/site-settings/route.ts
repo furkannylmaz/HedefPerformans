@@ -32,12 +32,24 @@ export async function GET(request: NextRequest) {
 
   if (key === HOMEPAGE_SETTING_KEY) {
     const data = await getHomepageContent()
-    return NextResponse.json({ success: true, data })
+    return NextResponse.json({ success: true, data }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   }
 
   if (key === SITE_INFO_SETTING_KEY) {
     const data = await getSiteInfo()
-    return NextResponse.json({ success: true, data })
+    return NextResponse.json({ success: true, data }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   }
 
   return NextResponse.json({ success: false, message: 'Desteklenmeyen key' }, { status: 400 })

@@ -26,24 +26,24 @@ export function ServicesPageEditor() {
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(`${API_ENDPOINT}?key=${SERVICES_PAGE_KEY}`)
-        const data = await response.json()
+  const fetchContent = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`${API_ENDPOINT}?key=${SERVICES_PAGE_KEY}&t=${Date.now()}`)
+      const data = await response.json()
 
-        if (data.success && data.data) {
-          setContent(data.data as ServicesPageContent)
-        }
-      } catch (error) {
-        console.error("[ServicesPageEditor] fetch error", error)
-        toast.error("İçerik yüklenirken bir hata oluştu")
-      } finally {
-        setLoading(false)
+      if (data.success && data.data) {
+        setContent(data.data as ServicesPageContent)
       }
+    } catch (error) {
+      console.error("[ServicesPageEditor] fetch error", error)
+      toast.error("İçerik yüklenirken bir hata oluştu")
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchContent()
   }, [])
 
@@ -102,6 +102,8 @@ export function ServicesPageEditor() {
 
       if (data.success) {
         toast.success("İçerik başarıyla kaydedildi")
+        // Verileri yeniden yükle
+        await fetchContent()
       } else {
         toast.error(data.message || "Kayıt sırasında bir hata oluştu")
       }

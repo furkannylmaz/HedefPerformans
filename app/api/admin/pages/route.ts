@@ -72,7 +72,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, message: 'Desteklenmeyen key' }, { status: 400 })
     }
 
-    return NextResponse.json({ success: true, data })
+    return NextResponse.json({ success: true, data }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('[AdminPages][GET] error', error)
     return NextResponse.json({ success: false, message: 'Veri yüklenirken bir hata oluştu' }, { status: 500 })

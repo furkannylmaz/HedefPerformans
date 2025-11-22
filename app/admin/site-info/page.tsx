@@ -17,26 +17,26 @@ export default function AdminSiteInfoPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    const fetchSiteInfo = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(`${API_ENDPOINT}?key=siteInfo`)
-        const data = await response.json()
+  const fetchSiteInfo = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`${API_ENDPOINT}?key=siteInfo&t=${Date.now()}`)
+      const data = await response.json()
 
-        if (data.success && data.data) {
-          setSiteInfo(data.data as SiteInfo)
-        } else {
-          toast.error(data.message || "Site bilgileri yüklenemedi")
-        }
-      } catch (error) {
-        console.error("[AdminSiteInfo] fetch error", error)
-        toast.error("Site bilgileri yüklenirken bir hata oluştu")
-      } finally {
-        setLoading(false)
+      if (data.success && data.data) {
+        setSiteInfo(data.data as SiteInfo)
+      } else {
+        toast.error(data.message || "Site bilgileri yüklenemedi")
       }
+    } catch (error) {
+      console.error("[AdminSiteInfo] fetch error", error)
+      toast.error("Site bilgileri yüklenirken bir hata oluştu")
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchSiteInfo()
   }, [])
 
@@ -76,6 +76,8 @@ export default function AdminSiteInfoPage() {
       if (data.success) {
         setSiteInfo(data.data as SiteInfo)
         toast.success("Site bilgileri güncellendi")
+        // Verileri yeniden yükle
+        await fetchSiteInfo()
       } else {
         toast.error(data.message || "Kayıt tamamlanamadı")
       }
