@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,6 +11,26 @@ import Image from "next/image"
 export default function PaymentMethodPage() {
   const router = useRouter()
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null)
+  const [paymentAmount, setPaymentAmount] = useState<string>("499")
+
+  // Site bilgilerinden ödeme tutarını çek
+  useEffect(() => {
+    const fetchPaymentAmount = async () => {
+      try {
+        const response = await fetch("/api/user/site-info")
+        const data = await response.json()
+        
+        if (data.success && data.data?.bankInfo?.amount) {
+          setPaymentAmount(data.data.bankInfo.amount)
+        }
+      } catch (error) {
+        console.error("Payment amount fetch error:", error)
+        // Hata durumunda default değer kullanılacak
+      }
+    }
+    
+    fetchPaymentAmount()
+  }, [])
 
   const handleContinue = () => {
     if (selectedMethod === "card") {
@@ -44,7 +64,7 @@ export default function PaymentMethodPage() {
             </div>
             <CardTitle className="text-2xl">Ödeme Yöntemi Seçin</CardTitle>
             <CardDescription className="text-lg">
-              Üyelik ücreti: <span className="text-2xl font-bold text-primary">499₺</span>
+              Üyelik ücreti: <span className="text-2xl font-bold text-primary">{paymentAmount}₺</span>
             </CardDescription>
           </CardHeader>
           

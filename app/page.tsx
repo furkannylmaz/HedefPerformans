@@ -779,9 +779,9 @@ export default async function HomePage() {
                 İletişim
               </h4>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li>{siteInfo.email}</li>
-                <li>{siteInfo.phone}</li>
-                <li>{siteInfo.address}</li>
+                <li>{siteInfo.email || 'info@hedefperformans.com'}</li>
+                <li>{siteInfo.phone || '+90 553 882 45 50'}</li>
+                <li>{siteInfo.address || 'Konak, İzmir — Türkiye'}</li>
               </ul>
               {siteInfo.whatsapp && (
                 <Button

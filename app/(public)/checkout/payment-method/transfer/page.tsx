@@ -34,7 +34,7 @@ export default function TransferPaymentPage() {
   useEffect(() => {
     const fetchBankInfo = async () => {
       try {
-        const response = await fetch("/api/admin/site-settings?key=siteInfo")
+        const response = await fetch("/api/user/site-info")
         const data = await response.json()
         
         if (data.success && data.data?.bankInfo) {

@@ -4,6 +4,7 @@ import { Queue } from 'bullmq'
 import { assignQueueName } from '@/lib/queue/names'
 import { connection } from '@/lib/queue/connection'
 import { autoAssignUser } from '@/lib/squads/assign'
+import { getSiteInfo } from '@/lib/site-settings'
 
 const prisma = new PrismaClient()
 
@@ -64,10 +65,16 @@ export async function POST(request: NextRequest) {
         })
       } else {
         // Payment kaydı yoksa oluştur
+        // Site bilgilerinden ödeme tutarını çek
+        const siteInfo = await getSiteInfo()
+        const paymentAmount = siteInfo.bankInfo?.amount 
+          ? parseFloat(siteInfo.bankInfo.amount.replace(',', '.')) 
+          : 499.00
+        
         await tx.payment.create({
           data: {
             userId: user.id,
-            amount: 499.00,
+            amount: paymentAmount,
             currency: 'TRY',
             status: 'PAID',
             paidAt: new Date()

@@ -27,7 +27,11 @@ export default function AdminAuthPage() {
         document.cookie = "admin_authenticated=true; path=/; max-age=86400" // 24 saat
         
         toast.success("Giriş başarılı!")
-        router.push('/admin/users')
+        
+        // Cookie set edildikten sonra yönlendirme yap
+        setTimeout(() => {
+          window.location.href = '/admin/users'
+        }, 100)
       } else {
         toast.error("E-posta veya şifre hatalı!")
       }
