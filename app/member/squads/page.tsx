@@ -3,11 +3,9 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { 
-  Users, Filter,
-  Calendar
+  Users, Calendar
 } from "lucide-react"
 import Link from "next/link"
 
@@ -34,47 +32,37 @@ interface Squad {
 }
 
 export default function MemberSquadsPage() {
-  const [squads, setSquads] = useState<Squad[]>([])
+  const [squad, setSquad] = useState<Squad | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedAgeGroup, setSelectedAgeGroup] = useState<string>("all")
-  const [ageGroups, setAgeGroups] = useState<string[]>([])
 
   useEffect(() => {
-    loadAgeGroups()
+    loadUserSquad()
   }, [])
 
-  useEffect(() => {
-    loadSquads()
-  }, [selectedAgeGroup])
-
-  const loadAgeGroups = async () => {
-    try {
-      const response = await fetch('/api/squads?availableAgeGroups=true')
-      const data = await response.json()
-      if (data.success) {
-        setAgeGroups(data.data.ageGroups)
-      }
-    } catch (error) {
-      console.error("Age groups load error:", error)
-    }
-  }
-
-  const loadSquads = async () => {
+  const loadUserSquad = async () => {
     setIsLoading(true)
     try {
-      const params = new URLSearchParams()
-      if (selectedAgeGroup && selectedAgeGroup !== "all") {
-        params.append('ageGroupCode', selectedAgeGroup)
-      }
+      // Önce kullanıcı profilini çek (kadro bilgisi için)
+      const profileResponse = await fetch('/api/user/profile')
+      const profileData = await profileResponse.json()
       
-      const response = await fetch(`/api/squads?${params.toString()}`)
-      const data = await response.json()
-      
-      if (data.success) {
-        setSquads(data.data.squads)
+      if (profileData.success && profileData.data.squad && profileData.data.squad.id) {
+        // Kullanıcının kadrosu varsa, o kadroyu detaylı olarak çek
+        const squadId = profileData.data.squad.id
+        
+        // Tüm kadroları çek ve kullanıcının kadrosunu bul
+        const squadsResponse = await fetch('/api/squads')
+        const squadsData = await squadsResponse.json()
+        
+        if (squadsData.success) {
+          const userSquad = squadsData.data.squads.find((s: Squad) => s.id === squadId)
+          if (userSquad) {
+            setSquad(userSquad)
+          }
+        }
       }
     } catch (error) {
-      console.error("Squads load error:", error)
+      console.error("User squad load error:", error)
     } finally {
       setIsLoading(false)
     }
@@ -108,130 +96,93 @@ export default function MemberSquadsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
             <Users className="h-8 w-8 text-red-600" />
-            Kadrolar
+            Kadrom
           </h1>
           <p className="text-gray-600">
-            Tüm kadroları görüntüleyin ve yaş grubuna göre filtreleyin.
+            Dahil olduğunuz kadroyu görüntüleyin.
           </p>
         </div>
       </div>
 
-      {/* Filtreler */}
-      <Card className="bg-white border-gray-200 shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-900">
-            <Filter className="h-5 w-5 text-red-600" />
-            Filtreler
-          </CardTitle>
-        </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <label htmlFor="ageGroup" className="text-sm font-medium">Yaş Grubu</label>
-              <Select value={selectedAgeGroup} onValueChange={setSelectedAgeGroup}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Tüm Yaş Grupları" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tümü</SelectItem>
-                  {ageGroups.map((ageGroup) => (
-                    <SelectItem key={ageGroup} value={ageGroup}>
-                      {ageGroup}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Kadro Listesi */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="bg-white border-gray-200 animate-pulse">
-                <CardHeader>
-                  <div className="h-6 bg-gray-300 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-300 rounded w-1/2 mt-2"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                    <div className="h-4 bg-gray-300 rounded"></div>
+      {/* Kadro Kartı */}
+      <div className="grid grid-cols-1 gap-6">
+        {isLoading ? (
+          <Card className="bg-white border-gray-200 animate-pulse">
+            <CardHeader>
+              <div className="h-6 bg-gray-300 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-300 rounded w-1/2 mt-2"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-300 rounded"></div>
+                <div className="h-4 bg-gray-300 rounded"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : squad ? (
+          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-gray-900 flex items-center justify-between">
+                <span>{squad.name}</span>
+                <Badge variant="outline" className="bg-red-600 text-white border-red-600">
+                  {squad.occupiedSlots}/{squad.totalSlots}
+                </Badge>
+              </CardTitle>
+              <CardDescription className="text-gray-600 flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                {new Date(squad.createdAt).toLocaleDateString('tr-TR')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-gray-900 mb-3">
+                  Kadro Üyeleri:
+                </div>
+                {squad.occupiedSlots > 0 ? (
+                  <div className="space-y-1 max-h-64 overflow-y-auto">
+                    {squad.slots
+                      .filter(slot => slot.isOccupied && slot.user)
+                      .map((slot) => {
+                        const positionBadge = getPositionBadge(slot.positionKey)
+                        return (
+                          <div key={`${squad.id}-${slot.positionKey}`} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                            <div className="flex items-center gap-2">
+                              <Badge className={positionBadge.className}>
+                                {positionBadge.label}
+                              </Badge>
+                              <span className="text-sm font-medium text-gray-900">
+                                #{slot.number}
+                              </span>
+                            </div>
+                            {slot.user && (
+                              <span className="text-sm text-gray-600">
+                                {slot.user.firstName} {slot.user.lastName}
+                              </span>
+                            )}
+                          </div>
+                        )
+                      })}
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : squads.length > 0 ? (
-            squads.map((squad) => {
-              const occupiedSlots = squad.occupiedSlots
-              const totalSlots = squad.totalSlots
-              
-              return (
-                <Card key={squad.id} className="bg-white border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-gray-900 flex items-center justify-between">
-                      <span>{squad.name}</span>
-                      <Badge variant="outline" className="bg-red-600 text-white border-red-600">
-                        {occupiedSlots}/{totalSlots}
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription className="text-gray-600 flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(squad.createdAt).toLocaleDateString('tr-TR')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium text-gray-900 mb-3">
-                        Kadro Üyeleri:
-                      </div>
-                      {occupiedSlots > 0 ? (
-                        <div className="space-y-1 max-h-64 overflow-y-auto">
-                          {squad.slots
-                            .filter(slot => slot.isOccupied && slot.user)
-                            .map((slot) => {
-                              const positionBadge = getPositionBadge(slot.positionKey)
-                              return (
-                                <div key={`${squad.id}-${slot.positionKey}`} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
-                                  <div className="flex items-center gap-2">
-                                    <Badge className={positionBadge.className}>
-                                      {positionBadge.label}
-                                    </Badge>
-                                    <span className="text-sm font-medium text-gray-900">
-                                      #{slot.number}
-                                    </span>
-                                  </div>
-                                  {slot.user && (
-                                    <span className="text-sm text-gray-600">
-                                      {slot.user.firstName} {slot.user.lastName}
-                                    </span>
-                                  )}
-                                </div>
-                              )
-                            })}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-600">
-                          Henüz üye yok
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Kadro bulunamadı
-              </h3>
-              <p className="text-gray-600">
-                Seçilen filtrelerde kadro bulunamadı.
-              </p>
-            </div>
-          )}
-        </div>
+                ) : (
+                  <p className="text-sm text-gray-600">
+                    Henüz üye yok
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="text-center py-12">
+            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Henüz kadroya atanmadınız
+            </h3>
+            <p className="text-gray-600">
+              Kadro atamanız tamamlandığında burada görüntülenecektir.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
